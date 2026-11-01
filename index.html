@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MPI — PPSK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f6ff;--ink:#1f2547;--mut:#6a7196;--p:#5b6cff;--p2:#8a5bff;--pink:#ff6bb5;--mint:#1fcfa8;--yel:#ffc43d;--ora:#ff8a5b;--sky:#34b8ff;--card:#fff;--line:#e6e9fb;--r:22px;--sh:0 10px 30px rgba(91,108,255,.13)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;overflow-x:hidden;line-height:1.6}
+h1,h2,h3,h4{font-family:'Sora','Plus Jakarta Sans',sans-serif;line-height:1.25}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(900px 500px at 10% -10%,#e3e7ff 0,transparent 60%),radial-gradient(800px 500px at 100% 0,#ffe3f2 0,transparent 55%),radial-gradient(900px 600px at 50% 110%,#d9fbf2 0,transparent 55%),var(--bg)}
+.blob{position:absolute;border-radius:50%;opacity:.55;filter:blur(2px)}
+.b1{width:180px;height:180px;background:#cfd6ff;left:-40px;top:22%}
+.b2{width:120px;height:120px;background:#ffd0e8;right:6%;top:14%}
+.b3{width:150px;height:150px;background:#c4f5e8;right:-30px;bottom:18%}
+.b4{width:80px;height:80px;background:#ffe9a8;left:8%;bottom:8%}
+.sq{position:absolute;width:46px;height:46px;border-radius:14px;background:#ffd9c7;opacity:.6;left:42%;top:8%;transform:rotate(18deg)}
+.top{position:sticky;top:0;z-index:20;background:rgba(244,246,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1100px;margin:auto;padding:10px 18px;display:flex;align-items:center;gap:14px;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-family:Sora;font-weight:800;font-size:18px}
+.logo i{font-style:normal;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--p),var(--pink));color:#fff;box-shadow:var(--sh)}
+.logo small{display:block;font-family:'Plus Jakarta Sans';font-weight:600;font-size:11px;color:var(--mut);margin-top:-4px}
+.who{font-size:13px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;display:none;box-shadow:var(--sh)}
+.stepper{max-width:1100px;margin:auto;padding:0 18px 10px;display:none;gap:8px;overflow-x:auto}
+.step{flex:1 0 auto;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:14px;background:#fff;border:1px solid var(--line);font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;color:var(--mut);transition:.2s}
+.step .n{width:24px;height:24px;border-radius:8px;background:#eef0ff;display:grid;place-items:center;font-size:12px}
+.step.on{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border-color:transparent;box-shadow:var(--sh)}
+.step.on .n{background:rgba(255,255,255,.25);color:#fff}
+.step.done .n{background:var(--mint);color:#fff}
+.step.lock{opacity:.5}
+main{max-width:1100px;margin:auto;padding:22px 18px 70px}
+.view{display:none;animation:in .35s ease}
+.view.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:24px;border:1px solid var(--line);margin-bottom:18px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:center}
+@media(max-width:820px){.hero{grid-template-columns:1fr}}
+.tag{display:inline-flex;gap:6px;align-items:center;font-size:12px;font-weight:800;padding:5px 12px;border-radius:999px;background:#eef0ff;color:var(--p);letter-spacing:.3px}
+.tag.pink{background:#ffe4f2;color:#d63384}.tag.mint{background:#d9fbf2;color:#0c8a6e}.tag.yel{background:#fff1c9;color:#a07100}.tag.ora{background:#ffe5d9;color:#c2410c}
+h1{font-size:clamp(26px,4.4vw,42px);margin:12px 0}
+h2{font-size:clamp(20px,3vw,27px);margin-bottom:6px}
+h3{font-size:18px;margin-bottom:6px}
+.grad{background:linear-gradient(90deg,var(--p),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+p.lead{color:var(--mut);font-size:15px}
+.field{margin-bottom:14px}
+label.l{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
+input[type=text],input[type=date],input[type=password],select,textarea{width:100%;padding:12px 14px;border-radius:14px;border:2px solid var(--line);font:inherit;background:#fbfcff;color:var(--ink);outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 4px rgba(91,108,255,.12);background:#fff}
+textarea{min-height:130px;resize:vertical}
+.btn{font:inherit;font-weight:800;border:0;cursor:pointer;padding:12px 22px;border-radius:14px;color:#fff;background:linear-gradient(135deg,var(--p),var(--p2));box-shadow:0 8px 20px rgba(91,108,255,.3);transition:.2s;display:inline-flex;gap:8px;align-items:center;justify-content:center}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.alt{background:#fff;color:var(--p);border:2px solid var(--line);box-shadow:none}
+.btn.mint{background:linear-gradient(135deg,var(--mint),#12b3d6);box-shadow:0 8px 20px rgba(31,207,168,.3)}
+.btn.pink{background:linear-gradient(135deg,var(--pink),var(--ora));box-shadow:0 8px 20px rgba(255,107,181,.3)}
+.btn.sm{padding:8px 14px;font-size:13px;border-radius:12px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.simc{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+@media(max-width:760px){.grid4{grid-template-columns:1fr 1fr}.simc{grid-template-columns:1fr}}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+.illu{background:linear-gradient(135deg,#eef0ff,#ffe9f5);border-radius:26px;padding:22px;position:relative;min-height:260px;display:grid;place-items:center}
+.q{border:2px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;background:#fff}
+.q .qn{display:flex;gap:10px;font-weight:700;margin-bottom:10px}
+.q .qn b{flex:0 0 32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--pink));color:#fff;display:grid;place-items:center;font-size:14px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:2px solid var(--line);border-radius:14px;margin-top:8px;cursor:pointer;transition:.15s;font-size:14px}
+.opt:hover{border-color:#b9c0ff;background:#fafbff}
+.opt input{margin-top:4px;accent-color:var(--p)}
+.opt .lt{flex:0 0 26px;height:26px;border-radius:8px;background:#eef0ff;color:var(--p);font-weight:800;font-size:12px;display:grid;place-items:center}
+.opt:has(input:checked){border-color:var(--p);background:#f1f3ff}
+.opt.ok{border-color:var(--mint);background:#e9fdf7}
+.opt.bad{border-color:#ff6b6b;background:#fff0f0}
+.sect{display:flex;gap:10px;align-items:center;margin:18px 0 10px}
+.sect span{font-size:22px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}
+.tab{flex:0 0 auto;padding:9px 16px;border-radius:14px;background:#fff;border:1px solid var(--line);font-weight:700;font-size:13px;cursor:pointer;color:var(--mut)}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tab.seen::after{content:" ✓";color:var(--mint)}
+.pbar{height:10px;border-radius:99px;background:#e9ecff;overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p),var(--pink));transition:width .5s}
+.box{border-radius:18px;padding:14px 16px;font-size:14px}
+.box.b1x{background:#eef0ff}.box.b2x{background:#e9fdf7}.box.b3x{background:#fff1f2}.box.b4x{background:#fff8e1}
+.box h4{font-size:14px;margin-bottom:6px}
+.box ul{padding-left:18px}.box li{margin:3px 0}
+.flow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.flow .fc{padding:7px 12px;border-radius:12px;font-weight:700;font-size:12.5px;color:#fff}
+.flow .ar{color:var(--mut);font-weight:800}
+table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;overflow:hidden;border-radius:16px;border:1px solid var(--line)}
+.t th{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:10px;text-align:left}
+.t td{padding:10px;border-top:1px solid var(--line);vertical-align:top}
+.t tr:nth-child(even) td{background:#fafbff}
+.scroll{overflow-x:auto}
+.meter{margin:8px 0}.meter .ml{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;margin-bottom:3px}
+.meter .mb{height:12px;background:#eef0ff;border-radius:99px;overflow:hidden}
+.meter .mb i{display:block;height:100%;border-radius:99px;transition:width .6s}
+.choice{width:100%;text-align:left;padding:14px;border-radius:16px;border:2px solid var(--line);background:#fff;font:inherit;font-weight:600;cursor:pointer;margin-top:10px;transition:.15s;font-size:14px}
+.choice:hover:not(:disabled){border-color:var(--p);transform:translateX(4px)}
+.choice.ok{border-color:var(--mint);background:#e9fdf7}.choice.bad{border-color:#ff7b7b;background:#fff0f0}.choice.pick{border-color:var(--p);background:#f1f3ff}
+.fb{margin-top:12px;padding:12px 14px;border-radius:14px;font-size:14px}
+.fb.ok{background:#e9fdf7;border-left:5px solid var(--mint)}.fb.bad{background:#fff0f0;border-left:5px solid #ff7b7b}.fb.info{background:#eef0ff;border-left:5px solid var(--p)}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{padding:8px 14px;border-radius:999px;border:2px solid var(--line);background:#fff;font-weight:700;font-size:13px;cursor:pointer}
+.pill.on{background:var(--p);color:#fff;border-color:var(--p)}
+.likert{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.likert .sc{display:flex;gap:6px}
+.likert .sc label{cursor:pointer}
+.likert .sc input{display:none}
+.likert .sc span{width:36px;height:36px;border-radius:12px;border:2px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:13px;transition:.15s}
+.likert .sc input:checked+span{background:var(--p);color:#fff;border-color:var(--p);transform:scale(1.1)}
+@media(max-width:640px){.likert{grid-template-columns:1fr}}
+.nocopy,.nocopy *:not(textarea){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.nocopy textarea{-webkit-user-select:text;user-select:text}
+.wc{font-size:12px;color:var(--mut);text-align:right;margin-top:4px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:14px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:.3s;z-index:99;max-width:92vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.sync{position:fixed;right:14px;bottom:14px;font-size:12px;font-weight:700;background:#fff;border:1px solid var(--line);padding:6px 12px;border-radius:999px;box-shadow:var(--sh);z-index:30;display:none}
+.modal{position:fixed;inset:0;background:rgba(31,37,71,.5);z-index:60;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.modal.on{display:flex}
+.modal .mc{background:#fff;border-radius:24px;padding:24px;max-width:420px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.25)}
+.modal .mc.wide{max-width:820px;max-height:90vh;overflow:auto}
+.stat{padding:16px;border-radius:18px;color:#fff}
+.stat b{display:block;font-family:Sora;font-size:28px}
+.stat small{font-weight:600;opacity:.9}
+.s1{background:linear-gradient(135deg,#5b6cff,#8a5bff)}.s2{background:linear-gradient(135deg,#1fcfa8,#12b3d6)}.s3{background:linear-gradient(135deg,#ff6bb5,#ff8a5b)}.s4{background:linear-gradient(135deg,#ffc43d,#ff8a5b)}
+.bars{display:grid;gap:12px}.bar-row{display:grid;grid-template-columns:70px 1fr;gap:10px;align-items:center;font-size:13px;font-weight:700}
+.bar-row .bb{display:grid;gap:4px}.bar-row .bb div{height:14px;border-radius:99px;font-size:10px;color:#fff;padding-left:8px;line-height:14px;min-width:24px}
+.ring{width:100%;max-width:380px;margin:auto;display:block}
+.ring g{cursor:pointer}
+.big{font-family:Sora;font-weight:800;font-size:34px}
+.score{border-radius:20px;padding:18px;text-align:center;color:#fff}
+.chip-s{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:800;background:#eef0ff;color:var(--p)}
+.warn{background:#fff8e1;border:2px dashed #ffc43d;border-radius:16px;padding:12px 14px;font-size:13.5px}
+.kv td{padding:4px 8px;font-size:13px}
+a.lnk{color:var(--p);font-weight:700;cursor:pointer;text-decoration:underline}
+footer{text-align:center;color:var(--mut);font-size:12px;padding:20px}
+</style>
+</head>
+<body>
+<div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div><div class="sq"></div></div>
+
+<header class="top">
+  <div class="top-in">
+    <div class="logo"><i>⟳</i><div><span id="appName">Perencanaan dan Pengembangan Sistem Komputer</span><small id="appSub">MPI Informatika XII</small></div></div>
+    <div class="who" id="who"></div>
+  </div>
+  <nav class="stepper" id="stepper"></nav>
+</header>
+
+<main>
+  <section class="view" id="v-login"></section>
+  <section class="view" id="v-pre"></section>
+  <section class="view" id="v-materi"></section>
+  <section class="view" id="v-sim"></section>
+  <section class="view" id="v-post"></section>
+  <section class="view" id="v-refl"></section>
+  <section class="view" id="v-hasil"></section>
+  <section class="view" id="v-guru"></section>
+</main>
+<footer>MPI Informatika XII • Metode Pengembangan Perangkat Lunak &amp; SDLC oleh Herry Kurniawan</footer>
+
+<div class="toast" id="toast"></div>
+<div class="sync" id="sync"></div>
+
+<div class="modal" id="mGuru"><div class="mc">
+  <h3>🔐 Masuk Dasbor Guru</h3>
+  <p class="lead" style="margin:6px 0 14px">Masukkan password guru untuk memantau hasil pengerjaan siswa.</p>
+  <div class="field"><input type="password" id="gPw" placeholder="Password guru" autocomplete="off"></div>
+  <div class="row"><button class="btn" id="gGo">Masuk</button><button class="btn alt" id="gCancel">Batal</button></div>
+  <p id="gErr" style="color:#d33;font-size:13px;margin-top:10px;font-weight:600"></p>
+</div></div>
+<div class="modal" id="mDetail"><div class="mc wide" id="mDetailBody"></div></div>
+
+<noscript><div class="card">Aplikasi ini membutuhkan JavaScript.</div></noscript>
+<script src="config.js"></script>
+<script>
+/* ============================================================
+   DATA KONTEN
+   ============================================================ */
+const CFG = window.SDLC_CONFIG || {SCRIPT_URL:""};
+const KELAS = ['XII 2','XII 3','XII 4','XII 5'];
+
+const TAHAP = [
+ {k:'Perencanaan',ic:'🗓️',c:'#5b6cff',tujuan:'Menentukan apa yang akan dibuat, mengapa, oleh siapa, berapa lama, dan berapa biayanya.',
+  kegiatan:['Studi kelayakan (teknis, biaya, waktu, operasional)','Menentukan ruang lingkup dan target proyek','Menyusun jadwal, anggaran, dan pembagian peran tim','Mengidentifikasi risiko awal'],
+  keluaran:['Project charter / proposal proyek','Jadwal proyek (Gantt chart)','Rencana anggaran & sumber daya'],
+  contoh:'Tim 4 siswa memutuskan membuat aplikasi pemesanan makanan kantin yang selesai dalam 8 minggu dan layak dibuat dengan HP dan Google Cloud gratis.'},
+ {k:'Analisis Kebutuhan',ic:'🔍',c:'#ff6bb5',tujuan:'Menggali dan mendokumentasikan kebutuhan pengguna dan sistem secara lengkap dan jelas.',
+  kegiatan:['Wawancara, angket, dan observasi pengguna','Memisahkan kebutuhan fungsional & non-fungsional','Membuat use case / user story','Menyusun dokumen SRS (Software Requirements Specification)'],
+  keluaran:['Dokumen SRS','Use case diagram','Daftar user story'],
+  contoh:'Siswa ingin memesan tanpa antre, sedangkan pengelola kantin ingin rekap pesanan otomatis. Kebutuhan non-fungsional: aplikasi terbuka < 3 detik.'},
+ {k:'Desain',ic:'🎨',c:'#1fcfa8',tujuan:'Merancang struktur dan tampilan sistem sebelum dibuat menjadi kode.',
+  kegiatan:['Merancang basis data (ERD)','Merancang alur dan struktur (DFD / UML)','Membuat wireframe & mockup antarmuka (UI/UX)','Memilih arsitektur dan teknologi'],
+  keluaran:['ERD & skema basis data','Wireframe / mockup','Dokumen desain sistem (SDD)'],
+  contoh:'Tim membuat ERD (siswa, menu, pesanan), wireframe halaman daftar menu dan keranjang, lalu memilih HTML + JavaScript + Google Sheet sebagai teknologi.'},
+ {k:'Implementasi',ic:'💻',c:'#ffa11d',tujuan:'Menerjemahkan desain menjadi program yang berjalan (coding).',
+  kegiatan:['Menulis kode program per modul','Memakai version control (Git/GitHub)','Code review antaranggota tim','Mengintegrasikan modul'],
+  keluaran:['Kode sumber (repository)','Modul program yang berjalan','Dokumentasi kode'],
+  contoh:'Anggota A membuat modul login, B modul menu, C modul pesanan, D modul rekap. Semua digabung di GitHub dan saling meninjau kode.'},
+ {k:'Pengujian',ic:'🧪',c:'#34b8ff',tujuan:'Memastikan sistem berjalan benar, bebas bug, dan sesuai kebutuhan sebelum dirilis.',
+  kegiatan:['Unit testing (menguji bagian kecil)','Integration testing (menguji gabungan modul)','System testing (menguji keseluruhan)','UAT — User Acceptance Test oleh pengguna asli'],
+  keluaran:['Test case & hasil uji','Laporan bug','Persetujuan pengguna (UAT)'],
+  contoh:'Tim menguji pemesanan 20 skenario. Ditemukan bug: total harga salah jika menu dipesan 2 kali. Bug diperbaiki, lalu pengelola kantin mencoba (UAT).'},
+ {k:'Penerapan & Pemeliharaan',ic:'🚀',c:'#8a5bff',tujuan:'Memasang sistem agar dipakai pengguna sesungguhnya, lalu merawat dan mengembangkannya.',
+  kegiatan:['Deployment (peluncuran) dan pelatihan pengguna','Membuat panduan / manual','Memperbaiki bug (korektif)','Menyesuaikan lingkungan baru (adaptif), menambah fitur (perfektif), pencegahan masalah (preventif)'],
+  keluaran:['Aplikasi yang sudah live','Manual pengguna','Log perbaikan & versi baru'],
+  contoh:'Aplikasi diluncurkan di kantin, siswa dilatih 10 menit. Sebulan kemudian pengguna minta fitur pesan untuk besok, tim membuat versi 1.1.'}
+];
+
+const METODE = [
+ {id:'waterfall',n:'Waterfall',ic:'🌊',c:'#5b6cff',ring:'Air terjun',
+  ringkas:'Metode klasik yang tahapannya berurutan (linear) seperti air terjun. Tahap berikutnya baru dimulai setelah tahap sebelumnya selesai, dan umumnya tidak kembali ke tahap sebelumnya.',
+  alur:['Kebutuhan','Desain','Implementasi','Pengujian','Penerapan','Pemeliharaan'],
+  plus:['Terstruktur dan mudah dikelola','Dokumentasi sangat lengkap','Target waktu dan biaya mudah diperkirakan'],
+  minus:['Kaku terhadap perubahan kebutuhan','Pengguna baru melihat produk di akhir','Kesalahan baru ketahuan di tahap akhir'],
+  cocok:'Kebutuhan jelas, lengkap, dan stabil; proyek kecil-menengah dengan dokumentasi formal.',
+  contoh:'Sistem perpajakan, sistem akuntansi, perangkat lunak tertanam (embedded).',
+  cmp:['Linear, berurutan','Sulit, mahal','Rendah (awal & akhir)','Sangat lengkap','Terlihat terlambat']},
+ {id:'prototype',n:'Prototype',ic:'🧩',c:'#ff6bb5',ring:'Prototipe',
+  ringkas:'Membuat contoh awal (prototipe) dengan cepat untuk diperlihatkan kepada pengguna, lalu diperbaiki berulang berdasarkan umpan balik sampai kebutuhan tepat.',
+  alur:['Kumpulkan kebutuhan awal','Buat prototipe cepat','Evaluasi pengguna','Perbaiki prototipe','Bangun produk akhir'],
+  plus:['Kebutuhan pengguna tergali dengan baik','Pengguna terlibat sejak awal','Salah paham cepat ketahuan'],
+  minus:['Prototipe dikira produk jadi','Ruang lingkup bisa melebar (scope creep)','Bisa memakan banyak iterasi'],
+  cocok:'Kebutuhan belum jelas dan tampilan/antarmuka sangat penting.',
+  contoh:'Aplikasi mobile dengan antarmuka baru, sistem informasi yang pengguna belum tahu maunya seperti apa.',
+  cmp:['Iteratif (prototipe→evaluasi)','Mudah di awal','Tinggi','Sedang','Rendah (cepat ketahuan)']},
+ {id:'rad',n:'RAD',ic:'⚡',c:'#ffa11d',ring:'Rapid Application Development',
+  ringkas:'Rapid Application Development: pengembangan sangat cepat (sekitar 60–90 hari) dengan tim kecil terampil, pembuatan prototipe, dan memakai komponen siap pakai (reusable).',
+  alur:['Pemodelan bisnis','Pemodelan data','Pemodelan proses','Pembuatan aplikasi','Pengujian & penyerahan'],
+  plus:['Waktu pengembangan singkat','Komponen dapat dipakai ulang','Umpan balik pengguna cepat'],
+  minus:['Butuh tim yang terampil dan kompak','Pengguna harus aktif terlibat','Kurang cocok untuk sistem besar & kompleks'],
+  cocok:'Proyek berskala kecil-menengah yang butuh cepat selesai dengan kebutuhan cukup jelas.',
+  contoh:'Sistem inventaris koperasi sekolah, aplikasi administrasi internal.',
+  cmp:['Iteratif & paralel, waktu dibatasi','Sedang','Tinggi','Sedang','Sedang']},
+ {id:'spiral',n:'Spiral',ic:'🌀',c:'#1fcfa8',ring:'Berbasis risiko',
+  ringkas:'Menggabungkan sifat iteratif dengan analisis risiko. Setiap putaran spiral melewati empat kuadran, sehingga risiko ditangani sejak dini.',
+  alur:['1. Tentukan tujuan','2. Analisis risiko','3. Kembangkan & uji','4. Rencanakan putaran berikutnya'],
+  plus:['Manajemen risiko sangat kuat','Cocok untuk proyek besar','Perubahan dapat diakomodasi tiap putaran'],
+  minus:['Mahal dan butuh ahli analisis risiko','Prosesnya kompleks','Kurang cocok untuk proyek kecil'],
+  cocok:'Proyek besar, kompleks, mahal, dan berisiko tinggi.',
+  contoh:'Sistem inti perbankan, sistem kendali pesawat, sistem pertahanan.',
+  cmp:['Iteratif (spiral 4 kuadran)','Bisa tiap putaran','Sedang','Sedang-tinggi','Sangat diperhatikan']},
+ {id:'agile',n:'Agile (Scrum)',ic:'🏃',c:'#34b8ff',ring:'Gesit & adaptif',
+  ringkas:'Pengembangan iteratif-inkremental dalam siklus pendek (sprint 1–4 minggu). Setiap sprint menghasilkan bagian produk yang dapat digunakan. Mengutamakan kolaborasi dengan pelanggan dan kesiapan menghadapi perubahan.',
+  alur:['Product backlog','Sprint planning','Sprint (pengembangan)','Daily scrum','Sprint review','Retrospective'],
+  plus:['Adaptif terhadap perubahan','Rilis cepat dan bertahap','Kolaborasi tim dan pelanggan tinggi'],
+  minus:['Dokumentasi cenderung minim','Perlu disiplin dan komunikasi tim','Sulit memperkirakan biaya total di awal'],
+  cocok:'Kebutuhan berubah-ubah, produk perlu cepat dirilis, pelanggan bisa terlibat rutin.',
+  contoh:'Aplikasi startup, aplikasi ojek online, e-commerce, game mobile.',
+  cmp:['Iteratif (sprint pendek)','Sangat mudah','Sangat tinggi','Secukupnya','Dikelola tiap sprint'],
+  extra:`<div class="grid2" style="margin-top:12px"><div class="box b4x"><h4>👥 Peran Scrum</h4><ul><li><b>Product Owner</b>: wakil pelanggan, mengatur prioritas backlog</li><li><b>Scrum Master</b>: pemandu proses, menyingkirkan hambatan</li><li><b>Development Team</b>: membuat produk</li></ul></div><div class="box b3x"><h4>📜 Manifesto Agile (4 nilai)</h4><ul><li>Individu &amp; interaksi &gt; proses &amp; alat</li><li>Perangkat lunak berfungsi &gt; dokumentasi lengkap</li><li>Kolaborasi pelanggan &gt; negosiasi kontrak</li><li>Merespons perubahan &gt; mengikuti rencana</li></ul></div></div>`},
+ {id:'devops',n:'DevOps',ic:'♾️',c:'#8a5bff',ring:'Dev + Ops, otomatis',
+  ringkas:'Budaya dan praktik yang menyatukan tim pengembang (Dev) dan operasional (Ops), memakai otomatisasi CI/CD sehingga pembaruan dapat dirilis sering, cepat, dan aman serta terus dipantau.',
+  alur:['Plan','Code','Build','Test','Release','Deploy','Operate','Monitor'],
+  plus:['Rilis sangat cepat dan sering','Otomatisasi mengurangi kesalahan manusia','Pemantauan berkelanjutan'],
+  minus:['Butuh perubahan budaya kerja','Butuh perkakas dan keahlian tambahan','Investasi awal otomasi cukup besar'],
+  cocok:'Layanan online yang sering diperbarui dan harus selalu tersedia.',
+  contoh:'Marketplace, platform streaming, aplikasi perbankan digital.',
+  cmp:['Siklus berkelanjutan (loop)','Sangat mudah','Tinggi (umpan balik monitoring)','Otomatis (as-code)','Dipantau terus-menerus']}
+];
+const CMP_ROWS=['Alur kerja','Respons terhadap perubahan','Keterlibatan pengguna','Dokumentasi','Penanganan risiko'];
+
+/* ---------- Pre-test ---------- */
+const PRE = [
+ {t:'pg',q:'Apa yang dimaksud dengan SDLC (Software Development Life Cycle)?',o:['Bahasa pemrograman untuk membuat aplikasi web','Sistem operasi khusus para pengembang','Kerangka tahapan terstruktur pengembangan perangkat lunak, dari perencanaan hingga pemeliharaan','Alat untuk mengukur kecepatan jaringan','Perangkat keras untuk menjalankan server'],a:2},
+ {t:'pg',q:'Dokumen SRS (Software Requirements Specification) dihasilkan pada tahap …',o:['Pengujian','Analisis kebutuhan','Implementasi','Pemeliharaan','Penerapan'],a:1},
+ {t:'pg',q:'Ciri utama metode Waterfall adalah …',o:['Pengembangan dalam sprint pendek yang berulang','Prototipe dibuat berkali-kali untuk dievaluasi pengguna','Tahapan berurutan; tahap berikutnya dimulai setelah tahap sebelumnya selesai','Seluruh proses otomatis tanpa peran manusia','Pengguna menentukan seluruh desain sendiri'],a:2},
+ {t:'pg',q:'Pengembangan dalam siklus pendek (sprint), rilis bertahap, dan kolaborasi erat dengan pelanggan merupakan ciri metode …',o:['Waterfall','Agile','Spiral murni tanpa iterasi','Big bang tanpa perencanaan','V-Model tanpa pengujian'],a:1},
+ {t:'pg',q:'Kegiatan menjalankan test case untuk menemukan bug sebelum aplikasi dirilis termasuk tahap …',o:['Perencanaan','Analisis kebutuhan','Desain','Implementasi','Pengujian'],a:4},
+ {t:'pgk',q:'Pilih SEMUA keunggulan metode Agile berikut!',o:['Adaptif terhadap perubahan kebutuhan','Dokumentasi harus selesai 100% sebelum coding','Rilis produk dapat dilakukan bertahap','Kolaborasi dengan pelanggan tinggi','Tidak memerlukan komunikasi tim'],a:[0,2,3]},
+ {t:'pgk',q:'Pilih SEMUA kegiatan yang termasuk tahap DESAIN!',o:['Merancang ERD basis data','Menjalankan UAT bersama pengguna','Membuat wireframe/mockup antarmuka','Memperbaiki bug yang dilaporkan pengguna','Merancang arsitektur sistem'],a:[0,2,4]},
+ {t:'pgk',q:'Pilih SEMUA kondisi yang cocok untuk metode iteratif (Prototype/Agile)!',o:['Kebutuhan belum jelas dan sering berubah','Kebutuhan baku dan tidak boleh berubah selama proyek','Pengguna dapat memberi umpan balik secara berkala','Klien tidak boleh melihat produk sampai selesai','Dokumen formal harus final sebelum membuat apa pun'],a:[0,2]},
+ {t:'pgk',q:'Pilih SEMUA jenis pengujian perangkat lunak!',o:['Unit testing','Wireframing','Integration testing','Requirement elicitation','User Acceptance Test (UAT)'],a:[0,2,4]},
+ {t:'pgk',q:'Pilih SEMUA kegiatan pada tahap pemeliharaan!',o:['Memperbaiki bug setelah aplikasi dipakai','Menyusun SRS untuk pertama kali','Menyesuaikan aplikasi dengan sistem operasi versi baru','Menambah fitur baru sesuai permintaan pengguna','Membuat ERD awal sistem'],a:[0,2,3]}
+];
+
+/* ---------- Simulasi A: pilih metode ---------- */
+const SIM_A = [
+ {s:'Dinas pajak daerah membangun sistem pelaporan dengan aturan yang sudah baku, tidak akan berubah, dan wajib memiliki dokumentasi lengkap pada setiap tahap.',a:'waterfall',e:'Kebutuhan jelas & stabil + dokumentasi ketat → Waterfall yang berurutan dan terdokumentasi sangat cocok.'},
+ {s:'Sekolah ingin aplikasi presensi digital, tetapi guru belum tahu seperti apa tampilan yang diinginkan. Mereka ingin mencoba contohnya dulu.',a:'prototype',e:'Kebutuhan/tampilan belum jelas → Prototype: buat contoh awal, minta umpan balik, perbaiki berulang.'},
+ {s:'Sebuah startup ingin merilis fitur baru setiap 2 minggu dan terus menyesuaikan diri dengan masukan pengguna yang cepat berubah.',a:'agile',e:'Rilis berkala + perubahan cepat → Agile (Scrum) dengan sprint 2 mingguan.'},
+ {s:'Sebuah bank membangun sistem inti berskala sangat besar dengan risiko keamanan tinggi dan anggaran besar. Risiko harus dianalisis di setiap tahap.',a:'spiral',e:'Proyek besar berisiko tinggi → Spiral, karena ada analisis risiko pada setiap putaran.'},
+ {s:'Koperasi sekolah butuh sistem inventaris sederhana dalam 2 bulan oleh tim kecil yang terampil, dengan komponen siap pakai.',a:'rad',e:'Waktu singkat, tim kecil terampil, komponen reusable → RAD.'},
+ {s:'Perusahaan e-commerce ingin memperbarui aplikasinya puluhan kali sehari secara otomatis dan memantau kinerjanya terus-menerus.',a:'devops',e:'Rilis sangat sering + otomasi CI/CD + monitoring → DevOps.'}
+];
+
+/* ---------- Simulasi B: aktivitas → tahap ---------- */
+const SIM_B = [
+ {s:'Mewawancarai guru dan siswa untuk mengetahui fitur apa yang dibutuhkan.',a:1},
+ {s:'Menyusun jadwal, anggaran, dan pembagian tugas tim proyek.',a:0},
+ {s:'Membuat ERD dan wireframe halaman login.',a:2},
+ {s:'Menulis kode program fitur peminjaman buku.',a:3},
+ {s:'Menjalankan test case dan memperbaiki bug sebelum rilis.',a:4},
+ {s:'Memperbaiki bug yang dilaporkan pengguna sebulan setelah aplikasi dipakai.',a:5},
+ {s:'Melakukan studi kelayakan: apakah proyek layak dari sisi teknis, biaya, dan waktu?',a:0},
+ {s:'Menyusun dokumen SRS dari hasil wawancara dan angket.',a:1}
+];
+
+/* ---------- Simulasi C: proyek ---------- */
+const SIM_C = [
+ {t:'Perencanaan',s:'Sekolah meminta <b>Aplikasi Perpustakaan Digital</b> selesai dalam 3 bulan. Tim Anda 4 orang. Apa langkah pertama?',
+  o:[['Langsung mulai coding agar cepat selesai',-10,-5,20,'Tanpa rencana, risiko melonjak: lingkup tidak jelas dan jadwal berantakan.'],
+     ['Menyusun lingkup, jadwal, pembagian tugas, dan studi kelayakan',10,5,-15,'Tepat! Perencanaan membuat arah, waktu, dan risiko terkendali.'],
+     ['Membuat rencana 6 bulan yang sangat detail, melebihi batas 3 bulan',0,-8,10,'Rencana tidak realistis terhadap batas waktu yang diminta sekolah.']]},
+ {t:'Analisis Kebutuhan',s:'Tim perlu tahu fitur yang dibutuhkan. Apa yang Anda lakukan?',
+  o:[['Menganggap kebutuhannya sama dengan aplikasi perpustakaan lain',-8,-12,15,'Asumsi tanpa verifikasi sering salah sasaran.'],
+     ['Menanyakan ke satu guru saja lalu menyimpulkan',0,-3,8,'Cukup cepat, tetapi sudut pandang pustakawan dan siswa belum terwakili.'],
+     ['Wawancara pustakawan, angket siswa, lalu menyusun SRS',10,12,-15,'Tepat! Kebutuhan terdokumentasi dan disepakati bersama pengguna.']]},
+ {t:'Desain',s:'Kebutuhan sudah jelas. Bagaimana Anda masuk ke tahap desain?',
+  o:[['Membuat ERD dan wireframe, lalu meminta 3 pengguna menilai desain',12,10,-12,'Tepat! Kesalahan desain ditemukan sebelum dikodekan, jauh lebih murah.'],
+     ['Langsung mendesain sambil mengetik kode',-6,-4,12,'Desain tidak terdokumentasi, sulit dikerjakan bersama.'],
+     ['Hanya membuat wireframe tanpa rancangan basis data',2,3,6,'Tampilan ada, tetapi struktur data belum dirancang sehingga rawan berubah besar.']]},
+ {t:'Implementasi',s:'Saatnya coding. Bagaimana tim bekerja?',
+  o:[['Satu orang menulis semua kode tanpa pencatatan versi',-6,-3,14,'Berisiko tinggi: jika file hilang atau rusak, tidak ada cadangan/versi.'],
+     ['Menyalin kode dari internet tanpa memahami isinya',-12,-5,20,'Kode sulit dirawat dan rawan celah keamanan.'],
+     ['Coding per modul, memakai Git/GitHub, dan saling code review',12,6,-14,'Tepat! Kerja paralel, terlacak, dan kualitas kode terjaga.']]},
+ {t:'Pengujian',s:'Aplikasi hampir selesai dan waktu tinggal 1 minggu. Apa yang Anda lakukan?',
+  o:[['Menguji unit & integrasi, lalu UAT bersama pustakawan',12,14,-18,'Tepat! Bug ditemukan sebelum dipakai, pengguna ikut menyetujui.'],
+     ['Menguji sekali saja oleh pembuat aplikasi',2,-2,8,'Pembuat cenderung tidak melihat kesalahannya sendiri.'],
+     ['Melewati pengujian karena waktu mepet',-10,-14,22,'Bug lolos ke pengguna dan merusak kepercayaan.']]},
+ {t:'Penerapan & Pemeliharaan',s:'Aplikasi siap diluncurkan. Bagaimana strategi Anda?',
+  o:[['Meluncurkan ke semua kelas sekaligus tanpa panduan',-4,-8,12,'Jika ada masalah, dampaknya menimpa semua pengguna.'],
+     ['Meluncurkan bertahap, memberi pelatihan singkat, dan membuka kanal laporan bug',10,12,-15,'Tepat! Risiko kecil dan perbaikan berkelanjutan terjamin.'],
+     ['Meluncurkan lalu meninggalkan proyek',-8,-10,16,'Tanpa pemeliharaan, aplikasi cepat usang.']]}
+];
+
+/* ---------- Post-test (LKPD) ---------- */
+const LKPD = [
+ {tp:'Tujuan 1',q:'Bandingkan metode <b>Waterfall</b> dan <b>Agile</b> dari minimal tiga aspek (misalnya alur tahapan, respons terhadap perubahan, keterlibatan pengguna, dokumentasi). Sebutkan juga satu kelebihan dan satu kekurangan masing-masing.',
+  kw:[/waterfall/,/agile|scrum/,/berurutan|linear|sekuensial|air terjun/,/iteratif|iterasi|sprint|bertahap|berulang/,/perubahan/,/kelebihan|keunggulan/,/kekurangan|kelemahan|kaku/,/pengguna|klien|pelanggan/,/dokumen/],
+  rub:'Waterfall (linear, dokumentasi lengkap, kaku), Agile (iteratif/sprint, adaptif, kolaborasi), minimal 3 aspek, kelebihan & kekurangan.'},
+ {tp:'Tujuan 1',q:'Jelaskan pengertian metode <b>Prototype</b>, <b>RAD</b>, dan <b>Spiral</b>. Kapan masing-masing paling tepat digunakan? Berikan satu contoh proyek untuk tiap metode.',
+  kw:[/prototype|prototipe/,/rad|rapid/,/spiral/,/risiko/,/umpan balik|feedback|evaluasi pengguna|masukan/,/cepat|singkat|komponen/,/contoh|misalnya|seperti/,/cocok|tepat|digunakan ketika|digunakan saat|digunakan jika/],
+  rub:'Prototype (contoh awal & umpan balik), RAD (cepat, komponen reusable), Spiral (analisis risiko), kondisi tepat, contoh proyek.'},
+ {tp:'Tujuan 2',q:'Uraikan <b>enam tahap SDLC</b> dan berikan satu kegiatan nyata pada setiap tahap untuk proyek <b>"aplikasi presensi digital sekolah"</b>.',
+  kw:[/perencanaan/,/analisis/,/desain|perancangan/,/implementasi|coding|pemrograman|menulis kode/,/pengujian|testing|uji/,/pemeliharaan|maintenance|penerapan|deployment/],
+  rub:'Perencanaan, Analisis, Desain, Implementasi, Pengujian, Penerapan/Pemeliharaan; tiap tahap ada kegiatan konkret.'},
+ {tp:'Tujuan 2',q:'Anda adalah ketua tim pengembang <b>"aplikasi Bank Sampah Sekolah"</b>. Pilih <u>satu</u> metode pengembangan, jelaskan alasan memilihnya, lalu rancang penerapan siklus hidupnya (kegiatan dan keluaran/artefak tiap tahap) serta cara tim menangani perubahan kebutuhan di tengah proyek.',
+  kw:[/waterfall|agile|scrum|prototype|prototipe|rad\b|spiral/,/alasan|karena|sebab/,/srs|kebutuhan|wawancara/,/erd|wireframe|mockup|desain/,/kode|coding|program/,/test|uji|bug/,/pemeliharaan|maintenance|rilis|deploy|peluncuran/,/perubahan|backlog|sprint|revisi|iterasi|evaluasi/],
+  rub:'Metode dipilih + alasan logis, kegiatan & artefak tiap tahap (SRS, ERD/wireframe, kode, test, rilis), mekanisme menangani perubahan.'}
+];
+
+/* ---------- Refleksi ---------- */
+const REFL_LIK = [
+ {g:'Perencanaan Belajar',ic:'🎯',c:'#5b6cff',items:[
+  'Sebelum belajar, saya menetapkan target apa yang ingin saya kuasai.',
+  'Saya merencanakan cara belajar (mencatat, mencoba simulasi, bertanya).',
+  'Saya yakin mampu memahami materi pengembangan perangkat lunak.']},
+ {g:'Pemantauan Diri',ic:'🧭',c:'#1fcfa8',items:[
+  'Saat belajar, saya mengecek apakah saya benar-benar paham.',
+  'Saya tahu bagian materi mana yang masih membingungkan saya.',
+  'Ketika bingung, saya mengganti cara belajar saya.']},
+ {g:'Evaluasi Diri',ic:'🔁',c:'#ff6bb5',items:[
+  'Saya belajar dari kesalahan pada pre-test dan simulasi.',
+  'Saya menjelaskan hasil belajar saya dari usaha dan strategi, bukan hanya nasib.',
+  'Saya tahu langkah apa yang harus saya perbaiki untuk belajar selanjutnya.']}
+];
+const REFL_IMPL = [
+ {id:'i1',q:'Saat pertama kali bertemu soal yang terasa sulit, reaksi PERTAMA yang muncul di pikiran saya adalah …',o:['"Ah, tebak saja."','"Coba baca ulang pelan-pelan dan pecah jadi bagian kecil."','"Cari contoh serupa di materi."','"Tanya teman atau guru."']},
+ {id:'i2',q:'Ketika hasil simulasi saya kurang baik, kalimat yang paling sering terlintas adalah …',o:['"Saya memang tidak bisa."','"Kurang beruntung saja."','"Strategi saya belum tepat, coba lagi dengan cara lain."','"Soalnya terlalu sulit."']},
+ {id:'i3',q:'Perasaan saya selama belajar hari ini paling dekat dengan …',o:['😴 Bosan','😰 Cemas','🙂 Tenang','🤩 Bersemangat']}
+];
+const STRAT = ['Membaca ulang materi','Mencoba simulasi berkali-kali','Membuat catatan sendiri','Mengaitkan dengan aplikasi sehari-hari','Menjelaskan ke teman','Bertanya ke guru','Membuat peta konsep','Istirahat sejenak'];
+const REFL_OPEN = [
+ {id:'o1',q:'Hal terpenting yang saya pelajari hari ini adalah …'},
+ {id:'o2',q:'Bagian yang paling sulit bagi saya dan apa yang saya lakukan untuk mengatasinya …'},
+ {id:'o3',q:'Jika saya mengulang pembelajaran ini, satu hal yang akan saya ubah dari cara belajar saya adalah …'},
+ {id:'o4',q:'Komitmen belajar saya untuk pertemuan berikutnya adalah …'}
+];
+
+/* ============================================================
+   STATE & UTIL
+   ============================================================ */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LS='sdlc_xii_state_v1';
+const fresh=()=>({profile:null,stage:'login',pre:null,materi:{seen:{}},sim:{a:null,b:null,c:null},post:{pred:null,ans:['','','',''],viol:{paste:0,copy:0,tab:0,jump:0},submitted:false,auto:null,detail:null},refl:null});
+let S=(()=>{try{return JSON.parse(localStorage.getItem(LS))||fresh()}catch(e){return fresh()}})();
+const UI={tab:0,metode:0,tahap:0,simTab:'a',simA:{i:0,ans:[],done:false},simB:{i:0,ans:[],done:false},simC:{i:0,m:[50,50,50],picks:[],done:false}};
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2800)}
+const wc=s=>(s.trim().match(/\S+/g)||[]).length;
+
+const STEPS=[{id:'pre',t:'Pre-test',n:1},{id:'materi',t:'Materi',n:2},{id:'sim',t:'Simulasi',n:3},{id:'post',t:'Post-test (LKPD)',n:4},{id:'refl',t:'Refleksi',n:5},{id:'hasil',t:'Hasil',n:6}];
+const matSeenAll=()=>Object.keys(S.materi.seen).length>=MAT_TABS.length;
+const simAll=()=>S.sim.a!==null&&S.sim.b!==null&&S.sim.c!==null;
+const unlocked=id=>({pre:true,materi:!!S.pre,sim:!!S.pre&&matSeenAll(),post:!!S.pre&&matSeenAll()&&simAll(),refl:!!S.post.submitted,hasil:!!S.refl})[id];
+const lockMsg={materi:'Selesaikan Pre-test dulu ya 📝',sim:'Buka semua tab Materi dulu 📖',post:'Selesaikan 3 simulasi dulu 🎮',refl:'Kirim Post-test (LKPD) dulu ✍️',hasil:'Isi Refleksi dulu 💭'};
+const isDone=id=>({pre:!!S.pre,materi:matSeenAll(),sim:simAll(),post:!!S.post.submitted,refl:!!S.refl,hasil:!!S.refl})[id];
+
+function go(name){
+  if(name!=='login'&&name!=='guru'&&!S.profile){name='login'}
+  if(STEPS.some(s=>s.id===name)&&!unlocked(name)){toast(lockMsg[name]);return}
+  $$('.view').forEach(v=>v.classList.remove('on'));$('#v-'+name).classList.add('on');
+  if(STEPS.some(s=>s.id===name)){S.stage=name;save()}
+  ({login:rLogin,pre:rPre,materi:rMateri,sim:rSim,post:rPost,refl:rRefl,hasil:rHasil,guru:rGuru})[name]();
+  renderStepper(name);window.scrollTo({top:0,behavior:'smooth'});
+  document.body.dataset.view=name;
+}
+function renderStepper(cur){
+  const st=$('#stepper'),who=$('#who');
+  if(!S.profile||cur==='login'||cur==='guru'){st.style.display='none';who.style.display=cur==='guru'?'block':'none';if(cur==='guru')who.textContent='👩‍🏫 Mode Guru';return}
+  st.style.display='flex';who.style.display='block';who.textContent=`👤 ${S.profile.nama} • ${S.profile.kelas}`;
+  st.innerHTML=STEPS.map(s=>`<div class="step ${s.id===cur?'on':''} ${isDone(s.id)&&s.id!==cur?'done':''} ${unlocked(s.id)?'':'lock'}" data-go="${s.id}"><span class="n">${isDone(s.id)&&s.id!==cur?'✓':s.n}</span>${s.t}</div>`).join('');
+  $$('.step',st).forEach(e=>e.onclick=()=>go(e.dataset.go));
+}
+
+/* ============================================================
+   SINKRONISASI (Google Sheet)
+   ============================================================ */
+function record(){
+  const p=S.profile,pr=S.pre,po=S.post,si=S.sim;
+  return {id:p.nis+'|'+p.kelas,waktu_update:new Date().toLocaleString('id-ID'),nama:p.nama,nis:p.nis,kelas:p.kelas,tanggal:p.tanggal,tahap:S.stage,
+   pre_pg:pr?pr.pg:'',pre_pgk:pr?pr.pgk:'',pre_total:pr?pr.total:'',pre_jawaban:pr?JSON.stringify(pr.ans):'',
+   sim_a:si.a??'',sim_b:si.b??'',sim_c:si.c??'',prediksi:po.pred??'',
+   post_1:po.ans[0],post_2:po.ans[1],post_3:po.ans[2],post_4:po.ans[3],post_auto:po.auto??'',post_detail:po.detail?JSON.stringify(po.detail):'',
+   pelanggaran:JSON.stringify(po.viol),refleksi:S.refl?JSON.stringify(S.refl):'',status:S.refl?'Selesai':'Berjalan'};
+}
+let syncT;
+function sync(now){clearTimeout(syncT);syncT=setTimeout(doSync,now?0:500)}
+async function doSync(){
+  save();if(!S.profile)return;
+  const b=$('#sync');b.style.display='block';
+  if(S.profile.demo){b.textContent='🎬 Mode demo — tidak dikirim ke Google Sheet';return}
+  if(!CFG.SCRIPT_URL){b.textContent='💾 Mode lokal (belum terhubung Google Sheet)';return}
+  b.textContent='⏳ Menyimpan…';
+  try{
+    const r=await fetch(CFG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',data:record()})});
+    const j=await r.json();b.textContent=j.ok?'✅ Tersimpan ke Google Sheet':'⚠️ Gagal: '+(j.error||'');
+  }catch(e){b.textContent='⚠️ Offline — data disimpan di perangkat, akan dikirim ulang'}
+  setTimeout(()=>{if(b.textContent.startsWith('✅'))b.style.display='none'},2500);
+}
+async function api(action,extra){
+  const r=await fetch(CFG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,...extra})});
+  return r.json();
+}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+function rLogin(){
+  const today=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+  const p=S.profile||{};
+  $('#v-login').innerHTML=`<div class="hero">
+   <div><span class="tag">✨ Media Pembelajaran Interaktif</span>
+    <h1>Jelajahi <span class="grad">Metode Pengembangan Perangkat Lunak</span> &amp; Siklus Hidupnya</h1>
+    <p class="lead">Belajar lewat materi, simulasi proyek, refleksi diri, dan LKPD. Kamu akan menjadi <b>software engineer</b> yang memimpin proyek dari ide sampai aplikasi diluncurkan!</p>
+    <div class="row" style="margin-top:16px"><span class="tag mint">🎯 Menjelaskan metode</span><span class="tag pink">🛠️ Menerapkan SDLC</span><span class="tag yel">💭 Refleksi diri</span></div>
+    <div class="illu" style="margin-top:20px;min-height:170px"><div style="font-family:Sora;font-weight:800;font-size:22px;text-align:center" class="grad">Plan → Analyze → Design → Build → Test → Launch</div></div>
+   </div>
+   <div class="card" style="margin:0"><h2>👋 Yuk, Masuk!</h2><p class="lead" style="margin-bottom:16px">Isi data dirimu dengan benar. Hasil belajarmu tersimpan otomatis.</p>
+    <form id="fLogin" autocomplete="off">
+     <div class="field"><label class="l">Nama Lengkap</label><input type="text" id="lNama" placeholder="Contoh: Aisyah Putri" value="${esc(p.nama||'')}" maxlength="60"></div>
+     <div class="field"><label class="l">NIS</label><input type="text" id="lNis" inputmode="numeric" placeholder="Nomor Induk Siswa" value="${esc(p.nis||'')}" maxlength="12"></div>
+     <div class="grid2"><div class="field"><label class="l">Tanggal</label><input type="date" id="lTgl" value="${esc(p.tanggal||today)}"></div>
+     <div class="field"><label class="l">Kelas</label><select id="lKelas"><option value="">Pilih kelas…</option>${KELAS.map(k=>`<option ${p.kelas===k?'selected':''}>${k}</option>`).join('')}</select></div></div>
+     <button class="btn" style="width:100%" type="submit">Masuk &amp; Mulai Belajar 🚀</button>
+     <p id="lErr" style="color:#d33;font-weight:600;font-size:13px;margin-top:10px"></p>
+    </form>
+    <div style="text-align:center;margin-top:12px"><a class="lnk" id="lGuru" style="font-size:13px">🔐 Masuk Dasbor Guru</a></div>
+   </div></div>`;
+  $('#fLogin').onsubmit=e=>{
+    e.preventDefault();
+    const nama=$('#lNama').value.trim().replace(/\s+/g,' '),nis=$('#lNis').value.trim(),tgl=$('#lTgl').value,kelas=$('#lKelas').value,er=$('#lErr');
+    if(nama.length<3)return er.textContent='Nama minimal 3 huruf.';
+    if(!/^\d{4,12}$/.test(nis))return er.textContent='NIS harus berupa angka (4–12 digit).';
+    if(!tgl)return er.textContent='Tanggal wajib diisi.';
+    if(!kelas)return er.textContent='Pilih kelasmu.';
+    const same=S.profile&&S.profile.nis===nis&&S.profile.kelas===kelas;
+    if(!same)S=fresh();
+    S.profile={nama,nis,kelas,tanggal:tgl};
+    Object.assign(UI,{tab:0,simA:{i:0,ans:[],done:false},simB:{i:0,ans:[],done:false},simC:{i:0,m:[50,50,50],picks:[],done:false}});
+    save();sync(true);
+    const next=same&&S.stage&&unlocked(S.stage)&&S.stage!=='login'?S.stage:'pre';
+    toast(same?`Selamat datang kembali, ${nama.split(' ')[0]}! 👋`:`Halo ${nama.split(' ')[0]}, selamat belajar! 🎉`);
+    go(next);
+  };
+  $('#lGuru').onclick=()=>{$('#gPw').value='';$('#gErr').textContent='';$('#mGuru').classList.add('on');setTimeout(()=>$('#gPw').focus(),50)};
+}
+
+/* ============================================================
+   PRE-TEST
+   ============================================================ */
+const L='ABCDE';
+function qBlock(q,i,pref,num){
+  const inp=q.t==='pgk'?'checkbox':'radio';
+  return `<div class="q"><div class="qn"><b>${num}</b><div>${q.q}</div></div>${q.o.map((o,j)=>`<label class="opt"><input type="${inp}" name="${pref}${i}" value="${j}"><span class="lt">${L[j]}</span><span>${esc(o)}</span></label>`).join('')}</div>`;
+}
+function scorePre(ans){
+  let pg=0,pgk=0;
+  PRE.forEach((q,i)=>{
+    if(q.t==='pg'){if(ans[i][0]===q.a)pg+=10}
+    else{const c=ans[i].filter(x=>q.a.includes(x)).length,w=ans[i].length-c;pgk+=Math.max(0,c-w)/q.a.length*10}
+  });
+  pgk=Math.round(pgk*10)/10;
+  return {pg,pgk,total:Math.round((pg+pgk)*10)/10,ans};
+}
+function rPre(){
+  const v=$('#v-pre');
+  if(S.pre){
+    v.innerHTML=`<div class="card" style="text-align:center"><span class="tag mint">✅ Pre-test selesai</span><h2 style="margin-top:10px">Pre-test sudah kamu kerjakan!</h2>
+    <p class="lead">Ini titik awalmu. Jangan khawatir soal-soal yang belum bisa, itulah yang akan kamu pelajari.</p>
+    <div class="grid3" style="margin:18px 0;max-width:640px;margin-inline:auto"><div class="score s1"><div class="big">${S.pre.pg}</div>PG (maks 50)</div><div class="score s3"><div class="big">${S.pre.pgk}</div>PG Kompleks (maks 50)</div><div class="score s2"><div class="big">${S.pre.total}</div>Total / 100</div></div>
+    <button class="btn" id="toMat">Lanjut ke Materi 📖</button></div>`;
+    $('#toMat').onclick=()=>go('materi');return;
+  }
+  v.innerHTML=`<div class="card"><span class="tag">📝 Langkah 1</span><h2 style="margin-top:8px">Pre-test: Seberapa Kamu Tahu?</h2>
+   <p class="lead">Kerjakan jujur dan mandiri untuk mengetahui kemampuan awalmu. Bagian A: 5 soal pilihan ganda. Bagian B: 5 soal pilihan ganda kompleks (jawaban benar bisa lebih dari satu). Pre-test hanya bisa dikirim sekali.</p></div>
+   <div class="sect"><span>🅰️</span><h3>Bagian A — Pilihan Ganda (pilih 1 jawaban)</h3></div>
+   ${PRE.slice(0,5).map((q,i)=>qBlock(q,i,'p',i+1)).join('')}
+   <div class="sect"><span>🅱️</span><h3>Bagian B — Pilihan Ganda Kompleks (pilih semua yang benar)</h3></div>
+   ${PRE.slice(5).map((q,i)=>qBlock(q,i+5,'p',i+6)).join('')}
+   <div class="row" style="justify-content:space-between"><span id="preInfo" class="lead"></span><button class="btn mint" id="preGo">Kirim Pre-test ✅</button></div>`;
+  const upd=()=>{let n=0;PRE.forEach((q,i)=>{if($$(`input[name=p${i}]:checked`).length)n++});$('#preInfo').textContent=`Terjawab ${n}/10`};
+  $$('#v-pre input').forEach(x=>x.onchange=upd);upd();
+  $('#preGo').onclick=()=>{
+    const ans=PRE.map((q,i)=>$$(`input[name=p${i}]:checked`).map(x=>+x.value));
+    const miss=ans.findIndex(a=>!a.length);
+    if(miss>=0){toast(`Soal nomor ${miss+1} belum dijawab`);$$('.q')[miss].scrollIntoView({behavior:'smooth',block:'center'});return}
+    S.pre=scorePre(ans);save();sync(true);toast('Pre-test terkirim! 🎉');go('pre');
+  };
+}
+
+/* ============================================================
+   MATERI
+   ============================================================ */
+const MAT_TABS=['🌐 Konsep SDLC','🔄 Tahapan SDLC','🧭 Metode Pengembangan','⚖️ Perbandingan','🏫 Studi Kasus','📌 Rangkuman'];
+function rMateri(){
+  S.materi.seen[UI.tab]=1;save();
+  const n=Object.keys(S.materi.seen).length;
+  $('#v-materi').innerHTML=`<div class="card"><span class="tag pink">📖 Langkah 2</span><h2 style="margin-top:8px">Materi Pembelajaran</h2>
+   <div class="row" style="justify-content:space-between;margin:8px 0 6px"><span class="lead">Buka semua tab untuk membuka simulasi</span><b>${n}/${MAT_TABS.length}</b></div><div class="pbar"><i style="width:${n/MAT_TABS.length*100}%"></i></div></div>
+   <div class="tabs">${MAT_TABS.map((t,i)=>`<div class="tab ${UI.tab===i?'on':''} ${S.materi.seen[i]?'seen':''}" data-t="${i}">${t}</div>`).join('')}</div>
+   <div id="matBody"></div>
+   <div class="row" style="justify-content:space-between;margin-top:6px"><button class="btn alt" id="mPrev" ${UI.tab===0?'disabled':''}>← Sebelumnya</button>
+   ${UI.tab<MAT_TABS.length-1?'<button class="btn" id="mNext">Berikutnya →</button>':`<button class="btn mint" id="mSim" ${matSeenAll()?'':'disabled'}>Mulai Simulasi 🎮</button>`}</div>`;
+  $$('#v-materi .tab').forEach(e=>e.onclick=()=>{UI.tab=+e.dataset.t;rMateri();renderStepper('materi')});
+  const mp=$('#mPrev'),mn=$('#mNext'),ms=$('#mSim');
+  if(mp)mp.onclick=()=>{UI.tab--;rMateri();window.scrollTo({top:0,behavior:'smooth'})};
+  if(mn)mn.onclick=()=>{UI.tab++;rMateri();window.scrollTo({top:0,behavior:'smooth'});renderStepper('materi')};
+  if(ms)ms.onclick=()=>go('sim');
+  [mKonsep,mTahap,mMetode,mBanding,mKasus,mRangkum][UI.tab]($('#matBody'));
+}
+function mKonsep(el){
+  el.innerHTML=`<div class="card"><h2>Apa itu Perangkat Lunak &amp; Rekayasa Perangkat Lunak?</h2>
+  <p>Perangkat lunak (<i>software</i>) adalah kumpulan program, data, dan dokumentasi yang membuat komputer dapat melakukan tugas tertentu. Membuat software yang besar tidak bisa asal-asalan, perlu proses yang teratur supaya hasilnya <b>tepat waktu, sesuai biaya, dan berkualitas</b>.</p>
+  <div class="grid2" style="margin-top:14px"><div class="box b1x"><h4>📘 SDLC</h4><b>Software Development Life Cycle</b> (siklus hidup pengembangan perangkat lunak) adalah kerangka tahapan yang dilalui sebuah perangkat lunak, mulai dari perencanaan sampai dipelihara/dihentikan.</div>
+  <div class="box b2x"><h4>🧭 Metode pengembangan</h4>Metode (model proses) adalah <b>cara mengatur tahapan SDLC</b>: berurutan (Waterfall), berulang (Prototype, Agile), berbasis risiko (Spiral), dan sebagainya.</div></div>
+  <div class="box b4x" style="margin-top:14px"><h4>🤔 Mengapa SDLC penting?</h4><ul><li>Pekerjaan lebih terarah dan terukur</li><li>Kesalahan ditemukan lebih awal (lebih murah diperbaiki)</li><li>Semua anggota tim punya acuan yang sama</li><li>Hasil sesuai kebutuhan pengguna</li></ul></div>
+  <div class="box b3x" style="margin-top:14px"><h4>💡 Analogi</h4>Membangun rumah: ada <b>rencana</b> (anggaran), <b>survei kebutuhan</b> (berapa kamar), <b>gambar denah</b> (desain), <b>pembangunan</b>, <b>inspeksi</b> (pengujian), lalu <b>serah terima &amp; perawatan</b>. Metode pengembangan adalah <i>cara kerja kontraktornya</i>: sekaligus semua (Waterfall) atau ruang per ruang sambil diperbaiki bersama pemilik (Agile).</div></div>`;
+}
+function mTahap(el){
+  const R=118,cx=170,cy=170;
+  const nodes=TAHAP.map((t,i)=>{const a=(-90+i*60)*Math.PI/180;return {x:cx+R*Math.cos(a),y:cy+R*Math.sin(a),t,i}});
+  const T=TAHAP[UI.tahap];
+  el.innerHTML=`<div class="card"><h2>6 Tahap Siklus Hidup Perangkat Lunak</h2><p class="lead">Klik lingkaran untuk melihat tiap tahap. Panah menunjukkan bahwa setelah pemeliharaan, kebutuhan baru dapat memulai siklus lagi.</p>
+  <div class="grid2" style="align-items:center;margin-top:10px"><svg class="ring" viewBox="0 0 340 350"><defs><marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#a8b0e8"/></marker></defs>
+   <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#dfe3ff" stroke-width="3" stroke-dasharray="4 8"/>
+   ${nodes.map((n,i)=>{const m=nodes[(i+1)%6];const mx=(n.x+m.x)/2,my=(n.y+m.y)/2;return `<line x1="${n.x+(m.x-n.x)*.3}" y1="${n.y+(m.y-n.y)*.3}" x2="${n.x+(m.x-n.x)*.7}" y2="${n.y+(m.y-n.y)*.7}" stroke="#a8b0e8" stroke-width="3" marker-end="url(#ah)"/>`}).join('')}
+   <text x="${cx}" y="${cy-4}" text-anchor="middle" font-family="Sora" font-weight="800" font-size="26" fill="#5b6cff">SDLC</text><text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="11" fill="#6a7196" font-weight="700">Life Cycle</text>
+   ${nodes.map(n=>`<g data-i="${n.i}"><circle cx="${n.x}" cy="${n.y}" r="${UI.tahap===n.i?36:31}" fill="${n.t.c}" ${UI.tahap===n.i?'stroke="#1f2547" stroke-width="3"':''}/><text x="${n.x}" y="${n.y+7}" text-anchor="middle" font-size="22">${n.t.ic}</text><text x="${n.x}" y="${n.y+(n.y<cy?-42:50)}" text-anchor="middle" font-size="10.5" font-weight="800" fill="#1f2547">${n.i+1}. ${n.t.k.split(' &')[0]}</text></g>`).join('')}
+  </svg>
+  <div><span class="tag" style="background:${T.c};color:#fff">Tahap ${UI.tahap+1}</span><h3 style="margin-top:8px;font-size:22px">${T.ic} ${T.k}</h3><p>${T.tujuan}</p>
+   <div class="box b1x" style="margin-top:10px"><h4>🛠️ Kegiatan</h4><ul>${T.kegiatan.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+   <div class="box b2x" style="margin-top:10px"><h4>📦 Keluaran (artefak)</h4><ul>${T.keluaran.map(x=>`<li>${x}</li>`).join('')}</ul></div></div></div>
+   <div class="box b4x" style="margin-top:14px"><h4>🍔 Contoh — Proyek Aplikasi Kantin Sekolah</h4>${T.contoh}</div>
+   <div class="warn" style="margin-top:14px">ℹ️ Buku/sumber berbeda kadang menggabung atau memecah tahap (misalnya <i>Deployment</i> dipisah dari <i>Pemeliharaan</i>). Intinya sama: <b>rencanakan → pahami kebutuhan → rancang → bangun → uji → luncurkan &amp; rawat</b>.</div></div>`;
+  $$('.ring g',el).forEach(g=>g.onclick=()=>{UI.tahap=+g.dataset.i;mTahap(el)});
+}
+function mMetode(el){
+  const m=METODE[UI.metode];
+  el.innerHTML=`<div class="card"><h2>Macam-macam Metode Pengembangan Perangkat Lunak</h2><p class="lead">Pilih metode untuk mempelajarinya.</p>
+  <div class="pills" style="margin:12px 0">${METODE.map((x,i)=>`<div class="pill ${i===UI.metode?'on':''}" data-m="${i}">${x.ic} ${x.n}</div>`).join('')}</div>
+  <div style="border-left:6px solid ${m.c};padding-left:16px"><h3 style="font-size:24px">${m.ic} ${m.n} <span class="chip-s">${m.ring}</span></h3><p style="margin:8px 0">${m.ringkas}</p>
+   <h4>Alur / Tahapan</h4><div class="flow">${m.alur.map((a,i)=>`<span class="fc" style="background:${m.c}">${a}</span>${i<m.alur.length-1?'<span class="ar">➜</span>':''}`).join('')}</div></div>
+  <div class="grid2" style="margin-top:14px"><div class="box b2x"><h4>👍 Kelebihan</h4><ul>${m.plus.map(x=>`<li>${x}</li>`).join('')}</ul></div><div class="box b3x"><h4>👎 Kekurangan</h4><ul>${m.minus.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
+  <div class="grid2" style="margin-top:14px"><div class="box b1x"><h4>🎯 Cocok digunakan jika…</h4>${m.cocok}</div><div class="box b4x"><h4>📱 Contoh penerapan</h4>${m.contoh}</div></div>${m.extra||''}</div>`;
+  $$('.pill',el).forEach(p=>p.onclick=()=>{UI.metode=+p.dataset.m;mMetode(el)});
+}
+function mBanding(el){
+  el.innerHTML=`<div class="card"><h2>Perbandingan Metode</h2><p class="lead">Geser tabel ke samping di HP.</p><div class="scroll" style="margin-top:10px"><table class="t"><thead><tr><th>Aspek</th>${METODE.map(m=>`<th>${m.ic} ${m.n}</th>`).join('')}</tr></thead><tbody>
+  ${CMP_ROWS.map((r,i)=>`<tr><td><b>${r}</b></td>${METODE.map(m=>`<td>${m.cmp[i]}</td>`).join('')}</tr>`).join('')}
+  <tr><td><b>Cocok untuk</b></td>${METODE.map(m=>`<td>${m.cocok}</td>`).join('')}</tr></tbody></table></div>
+  <div class="box b4x" style="margin-top:14px"><h4>🧠 Tips memilih metode</h4><ul><li>Kebutuhan <b>pasti &amp; tetap</b> → Waterfall</li><li>Kebutuhan <b>belum jelas</b> / UI penting → Prototype</li><li>Cepat selesai &amp; komponen siap pakai → RAD</li><li>Proyek besar <b>berisiko tinggi</b> → Spiral</li><li>Sering berubah &amp; rilis berkala → Agile</li><li>Rilis sangat sering &amp; otomatis → DevOps</li></ul></div></div>`;
+}
+function mKasus(el){
+  const sp=[['Sprint 1 (minggu 1–2)','Login &amp; daftar menu',34],['Sprint 2 (minggu 3–4)','Keranjang &amp; pemesanan',34],['Sprint 3 (minggu 5–6)','Pembayaran &amp; notifikasi',34],['Sprint 4 (minggu 7–8)','Rekap, perbaikan &amp; peluncuran',34]];
+  el.innerHTML=`<div class="card"><h2>🍔 Studi Kasus: Aplikasi Pemesanan Kantin Sekolah</h2><p class="lead">Satu proyek, dua cara menerapkan siklus hidup. Perhatikan bedanya!</p>
+  <div class="grid2" style="margin-top:12px"><div class="box b1x"><h4>🌊 Dengan Waterfall (8 minggu)</h4>
+   ${[['Perencanaan','1 mgg',12.5],['Analisis','1 mgg',12.5],['Desain','1 mgg',12.5],['Implementasi','3 mgg',37.5],['Pengujian','1 mgg',12.5],['Rilis & rawat','1 mgg',12.5]].map((x,i)=>`<div style="display:flex;gap:6px;align-items:center;margin:5px 0"><span style="width:92px;font-size:12px;font-weight:700">${x[0]}</span><div style="height:20px;border-radius:8px;background:${TAHAP[i].c};width:${x[2]*1.8}%;min-width:44px;color:#fff;font-size:11px;font-weight:800;padding-left:8px;line-height:20px">${x[1]}</div></div>`).join('')}
+   <p style="margin-top:8px;font-size:13px">Pengguna baru melihat aplikasi di <b>minggu ke-7</b>. Jika kantin ingin mengubah fitur, tim harus mengulang dari tahap awal.</p></div>
+  <div class="box b2x"><h4>🏃 Dengan Agile/Scrum (4 sprint)</h4>${sp.map((x,i)=>`<div style="margin:7px 0;padding:9px 11px;border-radius:12px;background:#fff;border-left:5px solid ${TAHAP[i].c}"><b style="font-size:12.5px">${x[0]}</b><br><span style="font-size:13px">${x[1]}</span></div>`).join('')}
+   <p style="margin-top:8px;font-size:13px">Tiap sprint mengulang <b>mini-SDLC</b> (rencana→analisis→desain→kode→uji) dan menghasilkan fitur yang bisa dicoba pengelola kantin. Perubahan masuk <i>backlog</i> sprint berikutnya.</p></div></div>
+  <h3 style="margin:18px 0 8px">Artefak yang dihasilkan di tiap tahap</h3>
+  <div class="scroll"><table class="t"><thead><tr><th>Tahap</th><th>Kegiatan pada kantin</th><th>Artefak</th></tr></thead><tbody>${TAHAP.map(t=>`<tr><td><b>${t.ic} ${t.k}</b></td><td>${t.contoh}</td><td>${t.keluaran.join(', ')}</td></tr>`).join('')}</tbody></table></div>
+  <div class="box b3x" style="margin-top:14px"><h4>🛠️ Perkakas yang lazim dipakai</h4>Perencanaan: Trello, Notion, Gantt • Desain: Figma, draw.io • Kode: VS Code, Git/GitHub • Pengujian: Postman, Selenium • Rilis: GitHub Pages, Cloud.</div></div>`;
+}
+function mRangkum(el){
+  el.innerHTML=`<div class="card"><h2>📌 Rangkuman</h2>
+  <div class="grid2"><div class="box b1x"><h4>Tujuan 1 — Metode pengembangan</h4><ul><li><b>Waterfall</b>: linear, dokumentasi kuat, kaku</li><li><b>Prototype</b>: contoh awal + umpan balik</li><li><b>RAD</b>: cepat, komponen reusable</li><li><b>Spiral</b>: iteratif + analisis risiko</li><li><b>Agile/Scrum</b>: sprint, adaptif, kolaboratif</li><li><b>DevOps</b>: CI/CD, otomasi, monitoring</li></ul></div>
+  <div class="box b2x"><h4>Tujuan 2 — Penerapan SDLC</h4><ul>${TAHAP.map((t,i)=>`<li><b>${i+1}. ${t.k}</b> → ${t.keluaran[0]}</li>`).join('')}</ul></div></div>
+  <div class="box b4x" style="margin-top:14px"><h4>🎵 Jembatan keledai urutan tahap</h4><b>P</b>utri <b>A</b>lya <b>D</b>an <b>I</b>ka <b>P</b>ergi <b>P</b>asar → <b>P</b>erencanaan, <b>A</b>nalisis, <b>D</b>esain, <b>I</b>mplementasi, <b>P</b>engujian, <b>P</b>emeliharaan.</div>
+  <div class="box b3x" style="margin-top:14px"><h4>🔑 Pesan kunci</h4>Tidak ada metode yang paling baik untuk semua proyek. Memilih metode = mencocokkan <b>karakter proyek</b> (kejelasan kebutuhan, ukuran, risiko, waktu, keterlibatan pengguna) dengan <b>kekuatan metode</b>.</div></div>`;
+}
+
+/* ============================================================
+   SIMULASI
+   ============================================================ */
+function rSim(){
+  const st={a:S.sim.a!==null,b:S.sim.b!==null,c:S.sim.c!==null};
+  $('#v-sim').innerHTML=`<div class="card"><span class="tag mint">🎮 Langkah 3</span><h2 style="margin-top:8px">Simulasi: Jadilah Software Engineer!</h2>
+  <p class="lead">Selesaikan 3 simulasi. Skor percobaan pertama yang dicatat; kamu boleh mengulang untuk latihan.</p></div>
+  <div class="tabs"><div class="tab ${UI.simTab==='a'?'on':''} ${st.a?'seen':''}" data-s="a">🧭 A. Pilih Metode (Tujuan 1)</div><div class="tab ${UI.simTab==='b'?'on':''} ${st.b?'seen':''}" data-s="b">🧩 B. Tahap SDLC (Tujuan 2)</div><div class="tab ${UI.simTab==='c'?'on':''} ${st.c?'seen':''}" data-s="c">🏗️ C. Proyek Perpustakaan (Tujuan 2)</div></div>
+  <div id="simBody"></div>
+  <div class="row" style="justify-content:flex-end"><button class="btn mint" id="simNext" ${simAll()?'':'disabled'}>Lanjut ke Post-test (LKPD) ✍️</button></div>`;
+  $$('#v-sim .tab').forEach(e=>e.onclick=()=>{UI.simTab=e.dataset.s;rSim()});
+  $('#simNext').onclick=()=>go('post');
+  ({a:simA,b:simB,c:simC})[UI.simTab]($('#simBody'));
+}
+function simA(el){
+  const U=UI.simA;
+  if(U.done){const sc=U.ans.filter((x,i)=>x===SIM_A[i].a).length;
+    el.innerHTML=`<div class="card" style="text-align:center"><h2>🏁 Simulasi A selesai!</h2><div class="big grad">${sc}/${SIM_A.length}</div><p class="lead">Kamu tepat memilih metode pada ${sc} dari ${SIM_A.length} kasus.${S.sim.a!==null&&S.sim.a!==sc?` (Skor tercatat: ${S.sim.a}, percobaan pertama.)`:''}</p><button class="btn alt" id="again">🔁 Ulangi</button></div>`;
+    $('#again').onclick=()=>{UI.simA={i:0,ans:[],done:false};simA(el)};return}
+  const q=SIM_A[U.i];
+  el.innerHTML=`<div class="card"><div class="row" style="justify-content:space-between"><span class="tag">Kasus ${U.i+1}/${SIM_A.length}</span><span class="lead">Metode apa yang paling tepat?</span></div>
+   <div class="box b1x" style="margin:12px 0;font-size:15px">📋 ${q.s}</div>
+   <div class="grid3">${METODE.map(m=>`<button class="choice" data-id="${m.id}" style="margin:0">${m.ic} ${m.n}</button>`).join('')}</div><div id="fbA"></div></div>`;
+  $$('.choice',el).forEach(b=>b.onclick=()=>{
+    const ok=b.dataset.id===q.a;U.ans[U.i]=b.dataset.id;
+    $$('.choice',el).forEach(x=>{x.disabled=true;if(x.dataset.id===q.a)x.classList.add('ok');});if(!ok)b.classList.add('bad');
+    $('#fbA').innerHTML=`<div class="fb ${ok?'ok':'bad'}">${ok?'✅ Tepat! ':'❌ Kurang tepat. Jawaban: <b>'+METODE.find(m=>m.id===q.a).n+'</b>. '}${q.e}</div><div style="margin-top:12px"><button class="btn" id="nx">${U.i<SIM_A.length-1?'Kasus berikutnya →':'Lihat hasil 🏁'}</button></div>`;
+    $('#nx').onclick=()=>{if(U.i<SIM_A.length-1){U.i++}else{U.done=true;if(S.sim.a===null){S.sim.a=U.ans.filter((x,i)=>x===SIM_A[i].a).length;sync(true);renderStepper('sim');toast('Simulasi A tersimpan ✅')}}rSim()};
+  });
+}
+function simB(el){
+  const U=UI.simB;
+  if(U.done){const sc=U.ans.filter((x,i)=>x===SIM_B[i].a).length;
+    el.innerHTML=`<div class="card" style="text-align:center"><h2>🏁 Simulasi B selesai!</h2><div class="big grad">${sc}/${SIM_B.length}</div><p class="lead">Kamu menempatkan ${sc} dari ${SIM_B.length} aktivitas pada tahap yang benar.${S.sim.b!==null&&S.sim.b!==sc?` (Skor tercatat: ${S.sim.b}.)`:''}</p><button class="btn alt" id="again">🔁 Ulangi</button></div>`;
+    $('#again').onclick=()=>{UI.simB={i:0,ans:[],done:false};simB(el)};return}
+  const q=SIM_B[U.i];
+  el.innerHTML=`<div class="card"><div class="row" style="justify-content:space-between"><span class="tag pink">Aktivitas ${U.i+1}/${SIM_B.length}</span><span class="lead">Aktivitas ini termasuk tahap apa?</span></div>
+   <div class="box b4x" style="margin:12px 0;font-size:16px;font-weight:700">🛠️ ${q.s}</div>
+   <div class="grid3">${TAHAP.map((t,i)=>`<button class="choice" data-i="${i}" style="margin:0;border-left:6px solid ${t.c}">${t.ic} ${t.k}</button>`).join('')}</div><div id="fbB"></div></div>`;
+  $$('.choice',el).forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i,ok=i===q.a;U.ans[U.i]=i;
+    $$('.choice',el).forEach(x=>{x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('ok')});if(!ok)b.classList.add('bad');
+    $('#fbB').innerHTML=`<div class="fb ${ok?'ok':'bad'}">${ok?'✅ Benar!':'❌ Tahap yang benar: <b>'+TAHAP[q.a].k+'</b>.'} Keluaran khas tahap ini: ${TAHAP[q.a].keluaran.join(', ')}.</div><div style="margin-top:12px"><button class="btn" id="nx">${U.i<SIM_B.length-1?'Berikutnya →':'Lihat hasil 🏁'}</button></div>`;
+    $('#nx').onclick=()=>{if(U.i<SIM_B.length-1){U.i++}else{U.done=true;if(S.sim.b===null){S.sim.b=U.ans.filter((x,i)=>x===SIM_B[i].a).length;sync(true);renderStepper('sim');toast('Simulasi B tersimpan ✅')}}rSim()};
+  });
+}
+function meters(m){const d=[['⭐ Kualitas Produk',m[0],'#5b6cff'],['😊 Kepuasan Pengguna',m[1],'#1fcfa8'],['⚠️ Tingkat Risiko',m[2],'#ff6b6b']];
+  return d.map(x=>`<div class="meter"><div class="ml"><span>${x[0]}</span><span>${Math.round(x[1])}</span></div><div class="mb"><i style="width:${Math.max(0,Math.min(100,x[1]))}%;background:${x[2]}"></i></div></div>`).join('')}
+function simC(el){
+  const U=UI.simC;
+  if(U.done){
+    const sc=Math.round((U.m[0]+U.m[1]+(100-U.m[2]))/3);
+    const end=sc>=75?['🏆','Proyek Sukses Gemilang','Aplikasi tepat waktu, berkualitas, dan disukai pengguna. Kamu menerapkan SDLC dengan disiplin!']:sc>=55?['👍','Proyek Cukup Baik','Aplikasi berjalan, tetapi beberapa keputusan masih membuat risiko tersisa. Tinjau ulang tahap yang kurang tepat.']:['🛠️','Perlu Evaluasi','Beberapa keputusan melewati praktik baik SDLC. Coba ulangi dan perhatikan penjelasan tiap tahap.'];
+    el.innerHTML=`<div class="card" style="text-align:center"><div style="font-size:56px">${end[0]}</div><h2>${end[1]}</h2><div class="big grad">${sc}/100</div><p class="lead" style="margin:8px 0 14px">${end[2]}</p><div style="max-width:420px;margin:auto;text-align:left">${meters(U.m)}</div>
+    <div class="scroll" style="margin-top:14px;text-align:left"><table class="t"><thead><tr><th>Tahap</th><th>Keputusanmu</th></tr></thead><tbody>${SIM_C.map((p,i)=>`<tr><td><b>${p.t}</b></td><td>${esc(p.o[U.picks[i]][0])}</td></tr>`).join('')}</tbody></table></div>
+    ${S.sim.c!==null&&S.sim.c!==sc?`<p class="lead" style="margin-top:8px">Skor tercatat (percobaan pertama): ${S.sim.c}</p>`:''}<button class="btn alt" id="again" style="margin-top:12px">🔁 Ulangi</button></div>`;
+    $('#again').onclick=()=>{UI.simC={i:0,m:[50,50,50],picks:[],done:false};simC(el)};return}
+  const p=SIM_C[U.i];
+  el.innerHTML=`<div class="simc"><div class="card" style="margin:0"><div class="flow">${SIM_C.map((x,i)=>`<span class="fc" style="background:${i<U.i?'#1fcfa8':i===U.i?TAHAP[i].c:'#cdd2ee'}">${i+1}</span>`).join('')}</div>
+   <span class="tag" style="background:${TAHAP[U.i].c};color:#fff">${TAHAP[U.i].ic} Tahap ${U.i+1}: ${p.t}</span>
+   <div class="box b1x" style="margin:12px 0;font-size:15px">${p.s}</div>
+   ${p.o.map((o,j)=>`<button class="choice" data-j="${j}">${esc(o[0])}</button>`).join('')}<div id="fbC"></div></div>
+   <div class="card" style="margin:0"><h3>📊 Dasbor Proyek</h3>${meters(U.m)}<p class="lead" style="font-size:12.5px;margin-top:8px">Proyek: <b>Aplikasi Perpustakaan Digital</b>. Ambil keputusan terbaik di tiap tahap!</p></div></div>`;
+  $$('.choice',el).forEach(b=>b.onclick=()=>{
+    const j=+b.dataset.j,o=p.o[j];U.picks[U.i]=j;
+    U.m=[U.m[0]+o[1],U.m[1]+o[2],U.m[2]+o[3]].map(x=>Math.max(0,Math.min(100,x)));
+    const best=p.o.reduce((bi,x,k)=>(x[1]+x[2]-x[3]>p.o[bi][1]+p.o[bi][2]-p.o[bi][3]?k:bi),0);
+    $$('.choice',el).forEach((x,k)=>{x.disabled=true;if(k===best)x.classList.add('ok');else if(k===j)x.classList.add('bad')});
+    if(j===best){b.classList.add('ok')}
+    $('#fbC').innerHTML=`<div class="fb ${j===best?'ok':'bad'}">${j===best?'✅ ':'⚠️ '}${o[4]}${j!==best?'<br><b>Pilihan terbaik:</b> '+esc(p.o[best][0])+' — '+p.o[best][4]:''}</div><div style="margin-top:12px"><button class="btn" id="nx">${U.i<SIM_C.length-1?'Tahap berikutnya →':'Peluncuran! 🚀'}</button></div>`;
+    $$('#v-sim .meter .mb i').forEach((e,k)=>e.style.width=U.m[k]+'%');
+    $('#nx').onclick=()=>{if(U.i<SIM_C.length-1){U.i++}else{U.done=true;if(S.sim.c===null){S.sim.c=Math.round((U.m[0]+U.m[1]+(100-U.m[2]))/3);sync(true);renderStepper('sim');toast('Simulasi C tersimpan ✅')}}rSim()};
+  });
+}
+
+/* ============================================================
+   POST-TEST (LKPD) — copy-paste dinonaktifkan
+   ============================================================ */
+function violLog(k,msg){if(S.post.submitted)return;S.post.viol[k]++;save();if(msg)toast(msg);sync()}
+function installLock(){
+  const v=$('#v-post');
+  const onPaste=e=>{e.preventDefault();violLog('paste','🚫 Paste dinonaktifkan. Ketik jawabanmu sendiri ya!')};
+  ['paste','drop'].forEach(ev=>v.addEventListener(ev,onPaste));
+  v.addEventListener('copy',e=>{e.preventDefault();violLog('copy','🚫 Copy dinonaktifkan.')});
+  v.addEventListener('cut',e=>{e.preventDefault();violLog('copy','🚫 Cut dinonaktifkan.')});
+  v.addEventListener('contextmenu',e=>e.preventDefault());
+  v.addEventListener('dragstart',e=>e.preventDefault());
+  v.addEventListener('selectstart',e=>{if(!e.target.closest||!e.target.closest('textarea'))e.preventDefault()});
+  v.addEventListener('beforeinput',e=>{if(/^insertFromPaste|^insertFromDrop|^insertFromYank/.test(e.inputType||'')){e.preventDefault();violLog('paste','🚫 Menempel teks dinonaktifkan.')}});
+  v.addEventListener('keydown',e=>{
+    const k=(e.key||'').toLowerCase();
+    if((e.ctrlKey||e.metaKey)&&['c','v','x','insert'].includes(k)){e.preventDefault();violLog(k==='v'?'paste':'copy','🚫 Pintasan copy/paste dinonaktifkan.')}
+    if(e.shiftKey&&k==='insert'){e.preventDefault();violLog('paste','🚫 Paste dinonaktifkan.')}
+  });
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&document.body.dataset.view==='post'&&S.profile&&!S.post.submitted&&S.post.pred!==null)violLog('tab')});
+function scoreLkpd(ans){return LKPD.map((q,i)=>{const t=ans[i].toLowerCase();const hit=q.kw.map(r=>r.test(t)?1:0);return Math.round(hit.reduce((a,b)=>a+b,0)/q.kw.length*100)})}
+function rPost(){
+  const v=$('#v-post'),P=S.post;
+  if(!v.dataset.lock){installLock();v.dataset.lock=1}
+  if(P.submitted){
+    v.innerHTML=`<div class="card" style="text-align:center"><span class="tag mint">✅ LKPD terkirim</span><h2 style="margin-top:10px">Jawabanmu sudah tersimpan</h2>
+    <p class="lead">Guru akan menilai jawaban uraianmu. Estimasi otomatis (berdasarkan kata kunci konsep) hanyalah gambaran awal.</p>
+    <div class="score s2" style="max-width:260px;margin:14px auto"><div class="big">${P.auto}</div>Estimasi otomatis / 100</div>
+    <button class="btn" id="toR">Lanjut ke Refleksi 💭</button></div>`;
+    $('#toR').onclick=()=>go('refl');return;
+  }
+  if(P.pred===null){
+    v.innerHTML=`<div class="card"><span class="tag ora">✍️ Langkah 4</span><h2 style="margin-top:8px">Post-test: LKPD</h2>
+    <p class="lead">LKPD berisi 4 soal uraian: 2 soal untuk Tujuan 1 (menjelaskan metode) dan 2 soal untuk Tujuan 2 (menerapkan SDLC).</p>
+    <div class="warn" style="margin:14px 0">🔒 <b>Aturan pengerjaan:</b> fitur copy, cut, paste, dan klik kanan dinonaktifkan. Ketik jawaban dengan kata-katamu sendiri. Berpindah tab/aplikasi saat mengerjakan akan tercatat.</div>
+    <div class="box b1x"><h4>🧭 Sebelum mulai — prediksi dirimu (metakognisi)</h4><p style="font-size:14px;margin-bottom:8px">Menurutmu, berapa nilai yang akan kamu peroleh pada LKPD ini? (0–100)</p>
+    <div class="row"><input type="range" id="pred" min="0" max="100" value="70" style="flex:1;accent-color:#5b6cff"><b class="big" id="predV" style="font-size:28px;min-width:64px">70</b></div></div>
+    <button class="btn" id="startP" style="margin-top:14px">Mulai Mengerjakan 🚀</button></div>`;
+    $('#pred').oninput=e=>$('#predV').textContent=e.target.value;
+    $('#startP').onclick=()=>{P.pred=+$('#pred').value;save();sync();rPost()};return;
+  }
+  v.classList.add('nocopy');
+  v.innerHTML=`<div class="card"><span class="tag ora">✍️ LKPD</span><h2 style="margin-top:8px">Lembar Kerja Peserta Didik</h2>
+   <p class="lead">Jawab dengan kalimatmu sendiri (minimal 15 kata per soal). Copy &amp; paste dinonaktifkan.</p></div>
+   ${LKPD.map((q,i)=>`<div class="q"><div class="qn"><b>${i+1}</b><div><span class="tag ${i<2?'':'pink'}" style="margin-bottom:6px">${q.tp}</span><div>${q.q}</div></div></div>
+   <textarea id="ans${i}" placeholder="Ketik jawabanmu di sini…" autocomplete="off" autocorrect="off" spellcheck="false">${esc(P.ans[i])}</textarea><div class="wc" id="wc${i}">0 kata</div></div>`).join('')}
+   <div class="row" style="justify-content:space-between"><span class="lead" id="lkInfo"></span><button class="btn mint" id="lkGo">Kirim LKPD ✅</button></div>`;
+  LKPD.forEach((q,i)=>{
+    const t=$('#ans'+i);const u=()=>$('#wc'+i).textContent=wc(t.value)+' kata';u();
+    let prev=t.value;
+    t.addEventListener('input',e=>{
+      if(t.value.length-prev.length>40&&!/composition/i.test(e.inputType||'')){t.value=prev;violLog('jump','🚫 Teks yang masuk terlalu banyak sekaligus, ditolak.');return}
+      prev=t.value;P.ans[i]=t.value;u();save();sync()});
+  });
+  $('#lkGo').onclick=()=>{
+    const short=P.ans.findIndex(a=>wc(a)<15);
+    if(short>=0){toast(`Jawaban nomor ${short+1} minimal 15 kata`);$('#ans'+short).focus();return}
+    if(!confirm('Kirim LKPD sekarang? Jawaban tidak bisa diubah setelah dikirim.'))return;
+    const det=scoreLkpd(P.ans);
+    P.detail=det;P.auto=Math.round(det.reduce((a,b)=>a+b,0)/det.length);P.submitted=true;save();sync(true);toast('LKPD terkirim! 🎉');go('post');
+  };
+}
+
+/* ============================================================
+   REFLEKSI
+   ============================================================ */
+function rRefl(){
+  const v=$('#v-refl');
+  v.innerHTML=`<div class="card"><span class="tag pink">💭 Langkah 5</span><h2 style="margin-top:8px">Refleksi Pembelajaran</h2>
+   <p class="lead">Tidak ada jawaban benar atau salah. Jawab sejujur mungkin supaya kamu mengenali cara belajarmu sendiri. Ini juga melatih <b>regulasi diri</b> (merencanakan, memantau, mengevaluasi) dan <b>metakognisi</b> (berpikir tentang cara berpikirmu).</p></div>
+   <div class="card"><h3>📊 Bagian 1 — Seberapa sesuai pernyataan ini denganmu?</h3><p class="lead" style="font-size:13px">1 = Tidak pernah · 2 = Jarang · 3 = Kadang · 4 = Sering · 5 = Selalu</p>
+   ${REFL_LIK.map((g,gi)=>`<div class="sect"><span>${g.ic}</span><h3 style="color:${g.c}">${g.g}</h3></div>${g.items.map((t,ii)=>`<div class="likert"><div>${t}</div><div class="sc">${[1,2,3,4,5].map(n=>`<label><input type="radio" name="L${gi}_${ii}" value="${n}"><span>${n}</span></label>`).join('')}</div></div>`).join('')}`).join('')}</div>
+   <div class="card"><h3>🧠 Bagian 2 — Isi spontan, jangan terlalu lama berpikir</h3>
+   ${REFL_IMPL.map(q=>`<div class="q"><div class="qn"><div>${q.q}</div></div>${q.o.map((o,j)=>`<label class="opt"><input type="radio" name="${q.id}" value="${j}"><span>${esc(o)}</span></label>`).join('')}</div>`).join('')}
+   <div class="q"><div class="qn"><div>Strategi belajar yang paling membantuku hari ini (boleh lebih dari satu):</div></div><div class="pills" id="strat">${STRAT.map(s=>`<div class="pill" data-s="${esc(s)}">${s}</div>`).join('')}</div></div></div>
+   <div class="card"><h3>✏️ Bagian 3 — Tulis dengan kata-katamu</h3>${REFL_OPEN.map(q=>`<div class="field"><label class="l">${q.q}</label><textarea id="${q.id}" style="min-height:90px" placeholder="Tulis di sini…"></textarea></div>`).join('')}</div>
+   <div class="row" style="justify-content:flex-end"><button class="btn mint" id="rGo">Kirim Refleksi &amp; Lihat Hasil 🏁</button></div>`;
+  $$('#strat .pill').forEach(p=>p.onclick=()=>p.classList.toggle('on'));
+  $('#rGo').onclick=()=>{
+    const lik=REFL_LIK.map((g,gi)=>g.items.map((t,ii)=>{const x=$(`input[name=L${gi}_${ii}]:checked`);return x?+x.value:0}));
+    if(lik.flat().includes(0))return toast('Masih ada pernyataan pada Bagian 1 yang belum dijawab');
+    const impl={};for(const q of REFL_IMPL){const x=$(`input[name=${q.id}]:checked`);if(!x)return toast('Lengkapi Bagian 2 terlebih dahulu');impl[q.id]=q.o[+x.value]}
+    const strat=$$('#strat .pill.on').map(p=>p.dataset.s);
+    const open={};for(const q of REFL_OPEN){const t=$('#'+q.id).value.trim();if(wc(t)<4)return toast('Isi semua pertanyaan Bagian 3 (minimal beberapa kata)');open[q.id]=t}
+    S.refl={lik,impl,strat,open,domain:lik.map(a=>Math.round(a.reduce((x,y)=>x+y,0)/a.length*100)/100)};
+    save();sync(true);toast('Refleksi tersimpan 💜');go('hasil');
+  };
+}
+
+/* ============================================================
+   HASIL
+   ============================================================ */
+function rHasil(){
+  const P=S.post,r=S.refl,pre=S.pre.total,auto=P.auto;
+  const dom=r.domain;const names=REFL_LIK.map(g=>g.g);
+  const low=dom.indexOf(Math.min(...dom)),high=dom.indexOf(Math.max(...dom));
+  const adv=['Mulailah tiap sesi dengan menulis target kecil (misal: "hari ini aku bisa membedakan Waterfall dan Agile").','Berhenti sejenak tiap 10 menit: tanya dirimu "bagian mana yang belum kupahami?" dan ganti cara belajarmu bila macet.','Setelah tugas, catat 1 kesalahan, 1 penyebab, dan 1 strategi perbaikan.'];
+  const gap=P.pred!==null?P.pred-auto:0;
+  const cal=Math.abs(gap)<=10?'Prediksimu sangat dekat dengan estimasi hasil. Kamu cukup akurat menilai kemampuan sendiri! 🎯':gap>10?'Prediksimu lebih tinggi dari estimasi. Biasakan memeriksa pemahaman dengan menjelaskan ulang tanpa melihat materi.':'Kamu menilai dirimu lebih rendah dari estimasi hasil. Kamu mungkin mampu lebih dari yang kamu kira, percayalah pada usahamu! 💪';
+  const medal=(auto+pre)/2>=75?'🏆':'🌟';
+  $('#v-hasil').innerHTML=`<div class="card" style="text-align:center;background:linear-gradient(135deg,#eef0ff,#ffe9f5)"><div style="font-size:60px">${medal}</div><h1 style="font-size:30px">Hebat, ${esc(S.profile.nama.split(' ')[0])}!</h1><p class="lead">Kamu sudah menyelesaikan seluruh rangkaian pembelajaran. Data tersimpan ${CFG.SCRIPT_URL?'di Google Sheet gurumu':'di perangkat ini (mode lokal)'}.</p></div>
+  <div class="grid3"><div class="score s1"><div class="big">${pre}</div>Pre-test</div><div class="score s2"><div class="big">${S.sim.a}/${SIM_A.length} · ${S.sim.b}/${SIM_B.length} · ${S.sim.c}</div>Simulasi A · B · C</div><div class="score s3"><div class="big">${auto}</div>Estimasi LKPD (nilai resmi dari guru)</div></div>
+  <div class="grid2" style="margin-top:18px"><div class="card"><h3>🧭 Profil Regulasi Dirimu</h3>${dom.map((d,i)=>`<div class="meter"><div class="ml"><span>${REFL_LIK[i].ic} ${names[i]}</span><span>${d}/5</span></div><div class="mb"><i style="width:${d/5*100}%;background:${REFL_LIK[i].c}"></i></div></div>`).join('')}
+   <div class="box b2x" style="margin-top:10px">💪 Kekuatanmu: <b>${names[high]}</b>.</div><div class="box b4x" style="margin-top:8px">🌱 Area tumbuh: <b>${names[low]}</b>.</div></div>
+  <div class="card"><h3>🔮 Akurasi Metakognisi</h3><p>Prediksimu: <b>${P.pred}</b> · Estimasi hasil: <b>${auto}</b></p><p style="margin-top:8px">${cal}</p>
+   <div class="box b1x" style="margin-top:10px"><h4>Saran belajar untukmu</h4><ul>${[adv[low]].map(x=>`<li>${x}</li>`).join('')}<li>Komitmenmu: <i>"${esc(r.open.o4)}"</i></li></ul></div></div></div>
+  <div class="card"><h3>✅ Peningkatan: Pre-test → LKPD (estimasi)</h3><div class="meter"><div class="ml"><span>Pre-test</span><span>${pre}</span></div><div class="mb"><i style="width:${pre}%;background:#ff6bb5"></i></div></div><div class="meter"><div class="ml"><span>LKPD (estimasi)</span><span>${auto}</span></div><div class="mb"><i style="width:${auto}%;background:#1fcfa8"></i></div></div></div>
+  <div class="row" style="justify-content:center"><button class="btn alt" id="hOut">Keluar / Ganti Siswa</button></div>`;
+  $('#hOut').onclick=()=>{if(confirm('Keluar dari sesi ini? Data sudah tersimpan.')){S.profile=null;S.stage='login';save();go('login')}};
+}
+
+/* ============================================================
+   DASBOR GURU
+   ============================================================ */
+let GURU={pw:'',rows:[]};
+$('#gCancel').onclick=()=>$('#mGuru').classList.remove('on');
+$('#gPw').addEventListener('keydown',e=>{if(e.key==='Enter')$('#gGo').click()});
+$('#gGo').onclick=async()=>{
+  const pw=$('#gPw').value,er=$('#gErr');if(!pw)return er.textContent='Masukkan password.';
+  if(!CFG.SCRIPT_URL){GURU.pw='';GURU.rows=S.profile?[localRow()]:[];GURU.local=true;$('#mGuru').classList.remove('on');go('guru');return}
+  er.textContent='Memeriksa…';
+  try{const j=await api('list',{password:pw});if(!j.ok){er.textContent=j.error||'Gagal.';return}
+    GURU={pw,rows:j.rows,local:false};$('#mGuru').classList.remove('on');go('guru');
+  }catch(e){er.textContent='Tidak dapat terhubung ke server. Periksa SCRIPT_URL di config.js.'}
+};
+function localRow(){const r=record();r.nilai_guru='';r.catatan_guru='';return r}
+const num=x=>(x===''||x===null||x===undefined||isNaN(+x))?null:+x;
+const final=r=>num(r.nilai_guru)!==null?num(r.nilai_guru):num(r.post_auto);
+const avg=a=>{a=a.filter(x=>x!==null);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:0};
+const jp=(s,d)=>{try{return JSON.parse(s)}catch(e){return d}};
+function rGuru(){
+  const v=$('#v-guru');
+  v.innerHTML=`<div class="card"><div class="row" style="justify-content:space-between"><div><span class="tag pink">👩‍🏫 Dasbor Guru</span><h2 style="margin-top:8px">Pemantauan Hasil Siswa</h2>${GURU.local?'<p class="lead" style="color:#c2410c">Mode lokal: belum terhubung ke Google Sheet. Hanya menampilkan data perangkat ini.</p>':''}</div>
+   <div class="row"><button class="btn sm alt" id="gRef">🔄 Muat ulang</button><button class="btn sm mint" id="gCsv">⬇️ Ekspor CSV</button><button class="btn sm alt" id="gOut">Keluar</button></div></div></div>
+   <div id="gStats"></div>
+   <div class="card"><div class="row" style="margin-bottom:12px"><select id="gKelas" style="max-width:160px"><option value="">Semua kelas</option>${KELAS.map(k=>`<option>${k}</option>`).join('')}</select><input type="text" id="gCari" placeholder="Cari nama / NIS…" style="max-width:260px"></div><div class="scroll"><table class="t" id="gTable"></table></div></div>`;
+  $('#gKelas').onchange=drawGuru;$('#gCari').oninput=drawGuru;
+  $('#gOut').onclick=()=>{GURU={pw:'',rows:[]};go('login')};
+  $('#gCsv').onclick=csv;
+  $('#gRef').onclick=async()=>{if(GURU.local){GURU.rows=S.profile?[localRow()]:[];drawGuru();return}try{const j=await api('list',{password:GURU.pw});if(j.ok){GURU.rows=j.rows;drawGuru();toast('Data dimuat ulang ✅')}else toast(j.error)}catch(e){toast('Gagal terhubung')}};
+  drawGuru();
+}
+function filtered(){const k=$('#gKelas').value,q=$('#gCari').value.toLowerCase();return GURU.rows.filter(r=>(!k||r.kelas===k)&&(!q||String(r.nama).toLowerCase().includes(q)||String(r.nis).includes(q)))}
+function drawGuru(){
+  const all=GURU.rows,rows=filtered();
+  const done=all.filter(r=>r.status==='Selesai'||r.status==='Dinilai').length;
+  const pre=avg(all.map(r=>num(r.pre_total))),fin=avg(all.map(final));
+  $('#gStats').innerHTML=`<div class="grid4"><div class="stat s1"><b>${all.length}</b><small>Siswa terdata</small></div><div class="stat s2"><b>${done}</b><small>Menyelesaikan semua</small></div><div class="stat s3"><b>${pre}</b><small>Rata-rata Pre-test</small></div><div class="stat s4"><b>${fin}</b><small>Rata-rata LKPD (nilai guru / estimasi)</small></div></div>
+  <div class="card"><h3>📊 Rata-rata per Kelas</h3><div class="bars" style="margin-top:10px">${KELAS.map(k=>{const g=all.filter(r=>r.kelas===k);const a=avg(g.map(r=>num(r.pre_total))),b=avg(g.map(final));return `<div class="bar-row"><span>${k}<br><small style="color:var(--mut)">${g.length} siswa</small></span><div class="bb"><div style="width:${Math.max(a,3)}%;background:#ff6bb5">Pre ${a}</div><div style="width:${Math.max(b,3)}%;background:#1fcfa8">LKPD ${b}</div></div></div>`}).join('')}</div></div>`;
+  const t=$('#gTable');
+  t.innerHTML=`<thead><tr><th>Nama</th><th>NIS</th><th>Kelas</th><th>Tahap</th><th>Pre</th><th>Sim A/B/C</th><th>LKPD auto</th><th>Nilai Guru</th><th>Selisih</th><th>Pelanggaran</th><th></th></tr></thead><tbody>${rows.length?rows.map((r,i)=>{const vi=jp(r.pelanggaran,{});const vs=(vi.paste||0)+(vi.copy||0)+(vi.tab||0)+(vi.jump||0);const f=final(r),p=num(r.pre_total);
+   return `<tr><td><b>${esc(r.nama)}</b></td><td>${esc(r.nis)}</td><td>${esc(r.kelas)}</td><td><span class="chip-s">${esc(r.status==='Selesai'||r.status==='Dinilai'?'Selesai':r.tahap)}</span></td><td>${r.pre_total===''?'-':r.pre_total}</td><td>${r.sim_a===''?'-':r.sim_a} / ${r.sim_b===''?'-':r.sim_b} / ${r.sim_c===''?'-':r.sim_c}</td><td>${r.post_auto===''?'-':r.post_auto}</td><td>${r.nilai_guru===''?'<i style="color:var(--mut)">belum</i>':'<b>'+r.nilai_guru+'</b>'}</td><td>${f!==null&&p!==null?(f-p>=0?'▲ +':'▼ ')+Math.round((f-p)*10)/10:'-'}</td><td>${vs?`<span class="tag ora">⚠️ ${vs}</span>`:'—'}</td><td><button class="btn sm" data-id="${esc(r.id)}">Detail</button></td></tr>`}).join(''):'<tr><td colspan="11" style="text-align:center;color:var(--mut)">Belum ada data.</td></tr>'}</tbody>`;
+  $$('#gTable button').forEach(b=>b.onclick=()=>detail(b.dataset.id));
+}
+function detail(id){
+  const r=GURU.rows.find(x=>String(x.id)===String(id));if(!r)return;
+  const vi=jp(r.pelanggaran,{}),rf=jp(r.refleksi,null),pj=jp(r.pre_jawaban,[]),det=jp(r.post_detail,[]);
+  const m=$('#mDetailBody');
+  m.innerHTML=`<div class="row" style="justify-content:space-between"><h3>👤 ${esc(r.nama)} · NIS ${esc(r.nis)} · ${esc(r.kelas)}</h3><button class="btn sm alt" id="dX">Tutup ✕</button></div>
+  <p class="lead" style="margin:4px 0 12px">Tanggal: ${esc(r.tanggal)} · Update: ${esc(r.waktu_update)}</p>
+  <div class="grid3"><div class="box b1x"><h4>Pre-test</h4>PG ${r.pre_pg||'-'} · PGK ${r.pre_pgk||'-'}<br><b>Total ${r.pre_total||'-'}</b></div><div class="box b2x"><h4>Simulasi</h4>A ${r.sim_a===''?'-':r.sim_a}/${SIM_A.length} · B ${r.sim_b===''?'-':r.sim_b}/${SIM_B.length} · C ${r.sim_c===''?'-':r.sim_c}</div><div class="box b3x"><h4>Integritas</h4>Paste ${vi.paste||0} · Copy ${vi.copy||0} · Pindah tab ${vi.tab||0} · Teks mendadak ${vi.jump||0}<br>Prediksi diri: ${r.prediksi===''?'-':r.prediksi}</div></div>
+  <h4 style="margin:16px 0 8px">✍️ Jawaban LKPD</h4>
+  ${LKPD.map((q,i)=>`<div class="q"><div class="qn"><b>${i+1}</b><div><span class="tag" style="margin-bottom:4px">${q.tp}</span><div style="font-weight:600">${q.q}</div></div></div><div class="box b1x" style="white-space:pre-wrap">${esc(r['post_'+(i+1)])||'<i>belum dijawab</i>'}</div><p style="font-size:12px;color:var(--mut);margin-top:6px">Rubrik: ${q.rub}<br>Kecocokan kata kunci otomatis: <b>${det[i]!==undefined?det[i]:'-'}%</b></p></div>`).join('')}
+  ${rf?`<h4 style="margin:16px 0 8px">💭 Refleksi</h4><div class="box b4x"><b>Skor regulasi diri:</b> ${REFL_LIK.map((g,i)=>g.g+' '+(rf.domain?rf.domain[i]:'-')+'/5').join(' · ')}<br><b>Reaksi spontan:</b> ${Object.values(rf.impl||{}).map(esc).join(' | ')}<br><b>Strategi:</b> ${esc((rf.strat||[]).join(', ')||'-')}<hr style="border:0;border-top:1px dashed #e6c86e;margin:8px 0">${REFL_OPEN.map(q=>`<b>${q.q}</b><br>${esc((rf.open||{})[q.id]||'-')}<br>`).join('<br>')}</div>`:''}
+  <h4 style="margin:16px 0 8px">🎓 Penilaian Guru</h4><div class="grid2"><div class="field"><label class="l">Nilai LKPD (0–100)</label><input type="text" id="dNilai" inputmode="decimal" value="${esc(r.nilai_guru)}" placeholder="${esc(r.post_auto)}"></div><div class="field"><label class="l">Catatan / umpan balik</label><input type="text" id="dCat" value="${esc(r.catatan_guru)}"></div></div>
+  <button class="btn" id="dSave">Simpan Nilai</button>`;
+  $('#mDetail').classList.add('on');
+  $('#dX').onclick=()=>$('#mDetail').classList.remove('on');
+  $('#dSave').onclick=async()=>{
+    const n=parseFloat(String($('#dNilai').value).replace(',','.'));if(isNaN(n)||n<0||n>100)return toast('Nilai harus 0–100');
+    const c=$('#dCat').value.trim();
+    if(GURU.local){r.nilai_guru=n;r.catatan_guru=c;drawGuru();$('#mDetail').classList.remove('on');return toast('Tersimpan (lokal)')}
+    try{const j=await api('grade',{password:GURU.pw,id:r.id,nilai_guru:n,catatan_guru:c});if(j.ok){r.nilai_guru=n;r.catatan_guru=c;r.status='Dinilai';drawGuru();$('#mDetail').classList.remove('on');toast('Nilai tersimpan ke Google Sheet ✅')}else toast(j.error||'Gagal')}catch(e){toast('Gagal terhubung')}
+  };
+}
+$('#mDetail').addEventListener('click',e=>{if(e.target.id==='mDetail')e.target.classList.remove('on')});
+function csv(){
+  const cols=['nama','nis','kelas','tanggal','status','pre_pg','pre_pgk','pre_total','sim_a','sim_b','sim_c','prediksi','post_auto','nilai_guru','catatan_guru','pelanggaran'];
+  const q=x=>'"'+String(x??'').replace(/"/g,'""')+'"';
+  const t=[cols.join(',')].concat(filtered().map(r=>cols.map(c=>q(r[c])).join(','))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv'}));a.download='hasil-sdlc-xii.csv';a.click();
+}
+
+
+/* ============================================================
+   MULAI
+   ============================================================ */
+$('#appName').textContent=CFG.JUDUL||'Perencanaan dan Pengembangan Sistem Komputer';$('#appSub').textContent=CFG.MAPEL||'MPI Informatika XII';
+(function init(){
+  if(S.profile&&S.stage&&S.stage!=='login'&&unlocked(S.stage)){go(S.stage)}else go('login');
+})();
+</script>
+</body>
+</html>
