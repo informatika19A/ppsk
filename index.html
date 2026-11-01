@@ -455,8 +455,8 @@ function rLogin(){
    </div>
    <div class="card" style="margin:0"><h2>👋 Yuk, Masuk!</h2><p class="lead" style="margin-bottom:16px">Isi data dirimu dengan benar. Hasil belajarmu tersimpan otomatis.</p>
     <form id="fLogin" autocomplete="off">
-     <div class="field"><label class="l">Nama Lengkap</label><input type="text" id="lNama" placeholder="Contoh: Aisyah Putri" value="${esc(p.nama||'')}" maxlength="60"></div>
-     <div class="field"><label class="l">NIS/Absen</label><input type="text" id="lNis" inputmode="numeric" placeholder="Nomor Induk Siswa/No.Absen" value="${esc(p.nis||'')}" maxlength="12"></div>
+     <div class="field"><label class="l">Nama Lengkap</label><input type="text" id="lNama" placeholder="Misal : Putri Wulandari" value="${esc(p.nama||'')}" maxlength="40"></div>
+     <div class="field"><label class="l">NIS/Absen</label><input type="text" id="lNis" inputmode="numeric" placeholder="xxxx/xx" value="${esc(p.nis||'')}" maxlength="10"></div>
      <div class="grid2"><div class="field"><label class="l">Tanggal</label><input type="date" id="lTgl" value="${esc(p.tanggal||today)}"></div>
      <div class="field"><label class="l">Kelas</label><select id="lKelas"><option value="">Pilih kelas…</option>${KELAS.map(k=>`<option ${p.kelas===k?'selected':''}>${k}</option>`).join('')}</select></div></div>
      <button class="btn" style="width:100%" type="submit">Masuk &amp; Mulai Belajar 🚀</button>
@@ -468,7 +468,7 @@ function rLogin(){
     e.preventDefault();
     const nama=$('#lNama').value.trim().replace(/\s+/g,' '),nis=$('#lNis').value.trim(),tgl=$('#lTgl').value,kelas=$('#lKelas').value,er=$('#lErr');
     if(nama.length<3)return er.textContent='Nama minimal 4 huruf.';
-    if(!/^\d{4,12}$/.test(nis))return er.textContent='NIS harus berupa angka (4–10 digit).';
+    if(!/^\d{2,10}$/.test(nis))return er.textContent='Harus berupa angka (2–10 digit).';
     if(!tgl)return er.textContent='Tanggal wajib diisi.';
     if(!kelas)return er.textContent='Pilih kelasmu.';
     const same=S.profile&&S.profile.nis===nis&&S.profile.kelas===kelas;
