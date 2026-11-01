@@ -162,13 +162,13 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:20px}
   <section class="view" id="v-hasil"></section>
   <section class="view" id="v-guru"></section>
 </main>
-<footer>MPI Informatika XII • Metode Pengembangan Perangkat Lunak &amp; SDLC oleh Herry Kurniawan</footer>
+<footer>MPI Informatika XII • Metode Pengembangan Perangkat Lunak &amp; SDLC oleh <b>Herry Kurniawan</b></footer>
 
 <div class="toast" id="toast"></div>
 <div class="sync" id="sync"></div>
 
 <div class="modal" id="mGuru"><div class="mc">
-  <h3>🔐 Masuk Dasbor Guru</h3>
+  <h3>🔐 Dasboard Guru</h3>
   <p class="lead" style="margin:6px 0 14px">Masukkan password guru untuk memantau hasil pengerjaan siswa.</p>
   <div class="field"><input type="password" id="gPw" placeholder="Password guru" autocomplete="off"></div>
   <div class="row"><button class="btn" id="gGo">Masuk</button><button class="btn alt" id="gCancel">Batal</button></div>
@@ -459,10 +459,10 @@ function rLogin(){
      <div class="field"><label class="l">NIS/Absen</label><input type="text" id="lNis" inputmode="numeric" placeholder="xxxx/xx" value="${esc(p.nis||'')}" maxlength="10"></div>
      <div class="grid2"><div class="field"><label class="l">Tanggal</label><input type="date" id="lTgl" value="${esc(p.tanggal||today)}"></div>
      <div class="field"><label class="l">Kelas</label><select id="lKelas"><option value="">Pilih kelas…</option>${KELAS.map(k=>`<option ${p.kelas===k?'selected':''}>${k}</option>`).join('')}</select></div></div>
-     <button class="btn" style="width:100%" type="submit">Masuk &amp; Mulai Belajar 🚀</button>
+     <button class="btn" style="width:100%" type="submit">Masuk &amp; Mulai Belajar</button>
      <p id="lErr" style="color:#d33;font-weight:600;font-size:13px;margin-top:10px"></p>
     </form>
-    <div style="text-align:center;margin-top:12px"><a class="lnk" id="lGuru" style="font-size:13px">🔐 Masuk Dasbor Guru</a></div>
+    <div style="text-align:center;margin-top:12px"><a class="lnk" id="lGuru" style="font-size:13px">🔐 Dasboard Guru</a></div>
    </div></div>`;
   $('#fLogin').onsubmit=e=>{
     e.preventDefault();
