@@ -337,10 +337,10 @@ const LKPD = [
  {tp:'Tujuan 1',q:'Jelaskan pengertian metode <b>Prototype</b>, <b>RAD</b>, dan <b>Spiral</b>. Kapan masing-masing paling tepat digunakan? Berikan satu contoh proyek untuk tiap metode.',
   kw:[/prototype|prototipe/,/rad|rapid/,/spiral/,/risiko/,/umpan balik|feedback|evaluasi pengguna|masukan/,/cepat|singkat|komponen/,/contoh|misalnya|seperti/,/cocok|tepat|digunakan ketika|digunakan saat|digunakan jika/],
   rub:'Prototype (contoh awal & umpan balik), RAD (cepat, komponen reusable), Spiral (analisis risiko), kondisi tepat, contoh proyek.'},
- {tp:'Tujuan 2',q:'Uraikan <b>enam tahap SDLC</b> dan berikan satu kegiatan nyata pada setiap tahap untuk proyek <b>"aplikasi presensi digital sekolah"</b>.',
+ {tp:'Tujuan 2',q:'Uraikan <b>Enam tahap SDLC</b> dan berikan satu kegiatan nyata pada setiap tahap untuk proyek <b>"Aplikasi Presensi Digital Sekolah"</b>.',
   kw:[/perencanaan/,/analisis/,/desain|perancangan/,/implementasi|coding|pemrograman|menulis kode/,/pengujian|testing|uji/,/pemeliharaan|maintenance|penerapan|deployment/],
   rub:'Perencanaan, Analisis, Desain, Implementasi, Pengujian, Penerapan/Pemeliharaan; tiap tahap ada kegiatan konkret.'},
- {tp:'Tujuan 2',q:'Anda adalah ketua tim pengembang <b>"aplikasi Bank Sampah Sekolah"</b>. Pilih <u>satu</u> metode pengembangan, jelaskan alasan memilihnya, lalu rancang penerapan siklus hidupnya (kegiatan dan keluaran/artefak tiap tahap) serta cara tim menangani perubahan kebutuhan di tengah proyek.',
+ {tp:'Tujuan 2',q:'Anda adalah ketua tim pengembang <b>"Aplikasi Bank Sampah Sekolah"</b>Pilih satu metode pengembangan, jelaskan alasan memilihnya, lalu rancang penerapan siklus hidupnya (kegiatan dan keluaran/artefak tiap tahap) serta cara tim menangani perubahan kebutuhan di tengah proyek.',
   kw:[/waterfall|agile|scrum|prototype|prototipe|rad\b|spiral/,/alasan|karena|sebab/,/srs|kebutuhan|wawancara/,/erd|wireframe|mockup|desain/,/kode|coding|program/,/test|uji|bug/,/pemeliharaan|maintenance|rilis|deploy|peluncuran/,/perubahan|backlog|sprint|revisi|iterasi|evaluasi/],
   rub:'Metode dipilih + alasan logis, kegiatan & artefak tiap tahap (SRS, ERD/wireframe, kode, test, rilis), mekanisme menangani perubahan.'}
 ];
@@ -727,7 +727,7 @@ function rPost(){
   }
   v.classList.add('nocopy');
   v.innerHTML=`<div class="card"><span class="tag ora">✍️ LKPD</span><h2 style="margin-top:8px">Lembar Kerja Peserta Didik</h2>
-   <p class="lead">Jawab dengan kalimatmu sendiri (minimal 15 kata per soal). Copy &amp; paste dinonaktifkan.</p></div>
+   <p class="lead">Jawab dengan kalimatmu sendiri (minimal 15 kata per soal)</p></div>
    ${LKPD.map((q,i)=>`<div class="q"><div class="qn"><b>${i+1}</b><div><span class="tag ${i<2?'':'pink'}" style="margin-bottom:6px">${q.tp}</span><div>${q.q}</div></div></div>
    <textarea id="ans${i}" placeholder="Ketik jawabanmu di sini…" autocomplete="off" autocorrect="off" spellcheck="false">${esc(P.ans[i])}</textarea><div class="wc" id="wc${i}">0 kata</div></div>`).join('')}
    <div class="row" style="justify-content:space-between"><span class="lead" id="lkInfo"></span><button class="btn mint" id="lkGo">Kirim LKPD ✅</button></div>`;
